@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ document_title }} · ATT&CK Visualizer{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/help.css') }}">{% endblock %}
+{% block content %}
+<section class="page-head legal-page-head">
+  <div>
+    <p class="eyebrow">LEGAL DOCUMENT</p>
+    <h1>{{ document_title }}</h1>
+    <p data-i18n="legal_original_note">정확성을 위해 원문을 변경 없이 표시합니다.</p>
+  </div>
+  <div class="legal-actions">
+    <a class="secondary" href="/terms" data-i18n="back_to_terms">이용 조건으로 돌아가기</a>
+    <a class="primary" href="{{ download_path }}" download data-i18n="download_original">원본 파일 다운로드</a>
+  </div>
+</section>
+
+<article class="legal-document card" aria-label="{{ document_title }}">
+  <pre>{{ document_text }}</pre>
+</article>
+{% endblock %}

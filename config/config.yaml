@@ -1,0 +1,4 @@
+attack_version: "19.2"
+attack_data: "data/attack/enterprise-attack.json"
+campaign_directory: "data/campaigns"
+

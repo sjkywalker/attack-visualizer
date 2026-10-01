@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>{% block title %}ATT&CK Visualizer{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/i18n.css') }}">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-group"><a class="brand" href="/"><!-- <span class="brand-mark">A</span> --><img class="brand-logo" src="/brand/ATTVIZ.png" alt="ATT&amp;CK Visualizer logo"><span>ATT&amp;CK <b>Visualizer</b></span></a><div class="language-switch" role="group" aria-label="Display language"><button type="button" data-language="en">English</button><span>/</span><button type="button" data-language="ko">한국어</button></div></div>
+    <nav aria-label="주요 탐색">
+      <a class="{{ 'active' if active == 'main' }}" href="/" data-i18n="nav_main">메인</a>
+      <a class="{{ 'active' if active == 'campaigns' }}" href="/campaigns" data-i18n="nav_campaigns">캠페인 관리</a>
+      <a class="{{ 'active' if active == 'help' }}" href="/help" data-i18n="nav_help">도움말</a>
+      <a class="{{ 'active' if active == 'disclaimer' }}" href="/disclaimer" data-i18n="nav_disclaimer">데모 데이터 안내</a>
+      <a class="{{ 'active' if active == 'terms' }}" href="/terms" data-i18n="nav_terms">이용 조건</a>
+    </nav>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>ATT&amp;CK Enterprise v{{ attack_version }} · <span data-i18n="local_data">로컬 데이터 기반</span> · <a href="/terms" data-i18n="nav_terms">이용 조건</a></footer>
+  <script src="{{ url_for('static', path='/js/i18n.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

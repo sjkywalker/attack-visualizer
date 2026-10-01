@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/matrix-controls.css') }}">{% endblock %}
+{% block content %}
+<section class="hero compact">
+  <div><p class="eyebrow">CAMPAIGN INTELLIGENCE</p><h1 data-i18n="hero_title">공격 행동을 한눈에 분석하세요</h1><p data-i18n="hero_text">캠페인과 네트워크 계층을 조합해 ATT&amp;CK Enterprise 행위를 비교합니다.</p></div>
+  <div class="stat"><span id="highlightCount">0</span><small data-i18n="highlighted">강조된 기술</small></div>
+</section>
+<section class="control-panel" aria-label="시각화 필터">
+  <div class="control-row"><div class="control-label" data-i18n="campaigns">캠페인</div><div id="campaignToggles" class="chips"></div><div class="control-actions"><button id="selectAll" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAll" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
+  <div class="control-row"><div class="control-label" data-i18n="layers">레이어</div><div id="layerToggles" class="chips"></div><div class="control-actions"><button id="selectAllLayers" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAllLayers" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
+  <div class="search-row"><label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="T-code 또는 기술 이름 검색" data-i18n-placeholder="search_placeholder" autocomplete="off"></label><span id="searchCount" class="muted"></span><span class="legend"><i></i> <span data-i18n="search_result">검색 결과</span></span></div>
+</section>
+<section class="matrix-shell">
+  <div class="matrix-heading"><div><h2>Enterprise Matrix</h2><p data-i18n="matrix_hint">전술 헤더나 기술을 클릭하면 내부 상세 정보와 캠페인 사용 현황을 볼 수 있습니다.</p></div><div id="loading" class="loading" data-i18n="loading">데이터 불러오는 중…</div></div>
+  <div class="matrix-toolbar" aria-label="매트릭스 표시 설정">
+    <div class="visibility-controls">
+      <span class="toolbar-label" data-i18n="show_unused">미사용 항목 표시</span>
+      <label class="toggle"><input id="showUnusedTactics" type="checkbox" checked><span data-i18n="tactics">전술</span></label>
+      <label class="toggle"><input id="showUnusedTechniques" type="checkbox" checked><span data-i18n="techniques">기술</span></label>
+      <label class="toggle"><input id="showUnusedSubtechniques" type="checkbox" checked><span data-i18n="subtechniques">하위 기술</span></label>
+      <span class="toolbar-divider" aria-hidden="true"></span>
+      <span class="toolbar-label" data-i18n="campaign_badges">캠페인 배지</span>
+      <button id="expandAllCampaigns" class="fit-button" type="button" data-i18n="expand_all_campaigns">모두 펼치기</button>
+      <button id="collapseAllCampaigns" class="fit-button" type="button" data-i18n="collapse_all_campaigns">모두 접기</button>
+    </div>
+    <div class="zoom-controls">
+      <span class="toolbar-label" data-i18n="size">크기</span>
+      <button id="zoomOut" class="zoom-button" type="button" aria-label="축소">−</button>
+      <input id="zoomRange" type="range" min="0" max="100" step="1" value="100" aria-label="매트릭스 확대 축소">
+      <label class="zoom-input-wrap"><input id="zoomInput" type="number" min="0" max="100" step="1" value="100" aria-label="확대 축소 배율 직접 입력"><span>%</span></label>
+      <button id="zoomIn" class="zoom-button" type="button" aria-label="확대">＋</button>
+      <button id="fitMatrix" class="fit-button" type="button" title="현재 표시된 모든 전술 열이 가로 영역 안에 들어오도록 자동 축소" data-i18n="fit_columns">전체 열 맞춤</button>
+      <button id="exportPng" class="fit-button" type="button" data-i18n="export_png">PNG 내보내기</button>
+      <button id="exportMatrix" class="fit-button" type="button" data-i18n="export_matrix" hidden disabled>SVG 내보내기</button>
+    </div>
+  </div>
+  <div id="matrixViewport" class="matrix-viewport"><div id="matrix" class="matrix" aria-live="polite"></div></div>
+</section>
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='/js/matrix.js') }}" defer></script>{% endblock %}

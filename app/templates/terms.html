@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}이용 조건 · ATT&CK Visualizer{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/help.css') }}">{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div><p class="eyebrow">LICENSE &amp; NOTICES</p><h1 data-i18n="terms_title">이용 조건</h1><p data-i18n="terms_text">허용되는 사용, 재배포 조건 및 제3자 고지를 확인하세요.</p></div>
+</section>
+
+<section class="docs-language" data-lang="ko">
+  <aside class="docs-nav"><a href="#overview-ko">개요</a><a href="#allowed-ko">허용 범위</a><a href="#restricted-ko">제한 범위</a><a href="#redistribution-ko">수정·재배포</a><a href="#commercial-ko">상업용 허가</a><a href="#third-party-ko">제3자 자료</a><a href="#legal-ko">정식 문서</a></aside>
+  <article class="docs card">
+    <h2 id="overview-ko">개요</h2>
+    <p>ATT&amp;CK Visualizer의 자체 코드와 자산은 <strong>PolyForm Noncommercial License 1.0.0</strong>으로 제공되는 비상업적 소스 공개(source-available) 소프트웨어입니다. 상업적 사용을 허용하는 OSI 승인 오픈소스 라이선스가 아닙니다.</p>
+    <div class="terms-summary">
+      <section class="permitted"><h3>허용</h3><p>라이선스가 정한 개인 학습·연구·실험·취미 목적과 명시된 비상업 조직의 사용, 그리고 같은 허용 목적을 위한 수정·재배포</p></section>
+      <section class="restricted"><h3>별도 허가 필요</h3><p>영리기업 내부 사용, 고객 업무, 컨설팅, 유료 교육, 상용 제품 포함, 재판매 및 상업적 호스팅·관리 서비스</p></section>
+    </div>
+    <h2 id="allowed-ko">허용 범위</h2>
+    <ul><li>상업적 적용을 예정하지 않은 개인 학습, 연구, 실험, 테스트 및 취미 프로젝트</li><li>라이선스에 명시된 자선·교육·공공 연구·공공 안전 또는 보건·환경 보호·정부기관의 사용</li><li>위 허용 목적을 위한 원본 또는 수정본의 복제와 재배포</li></ul>
+    <h2 id="restricted-ko">제한 범위</h2>
+    <p>출처를 표시하더라도 상업적 사용이 허용되는 것은 아닙니다. 특히 영리기업의 사내 분석·평가·PoC를 포함한 내부 사용, 고용 또는 고객 업무, 유료 컨설팅·교육, 제품 번들, 재판매, SaaS 및 관리형 서비스는 공개 라이선스로 허용되지 않습니다.</p>
+    <h2 id="redistribution-ko">수정 및 재배포</h2>
+    <p>허용된 비상업적 목적에 한해 수정·재배포할 수 있습니다. 수령인에게 <code>LICENSE</code> 원문 또는 공식 URL과 소프트웨어에 포함된 모든 <code>Required Notice:</code> 문구를 함께 제공해야 합니다. 원본 프로젝트 링크와 저작권 고지를 유지하고, 수정본은 원본 프로젝트로 오인되지 않도록 변경된 버전임을 명확히 표시하십시오.</p>
+    <h2 id="commercial-ko">상업용 허가</h2>
+    <p>영리기업 내부 사용을 포함한 상업적 사용에는 저작권자의 별도 서면 라이선스가 필요합니다. 공개 라이선스는 상업적 권리를 부여하지 않습니다.</p>
+    <h2 id="third-party-ko">MITRE ATT&amp;CK 및 제3자 자료</h2>
+    <p>저장소에 포함된 MITRE ATT&amp;CK® STIX 데이터는 제3자 자료이며 프로젝트의 PolyForm 라이선스로 재허가되지 않습니다. 데이터 복제본에는 MITRE의 저작권 표시와 라이선스를 유지해야 합니다. 이 프로젝트는 MITRE의 후원, 보증 또는 인증을 의미하지 않습니다. Python 패키지 등 다른 제3자 구성요소에도 각각의 라이선스가 적용됩니다.</p>
+    <h2 id="legal-ko">정식 문서</h2>
+    <p>이 페이지는 이해를 돕기 위한 요약입니다. 충돌하는 경우 <a href="/legal/documents/license" target="_blank" rel="noopener noreferrer">LICENSE 원문 보기 ↗</a>가 우선합니다. <a href="/legal/documents/notice" target="_blank" rel="noopener noreferrer">출처 및 제3자 고지 보기 ↗</a>와 <a href="/legal/documents/mitre-attack-license" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK 데이터 라이선스 보기 ↗</a>도 새 탭에서 열 수 있습니다. 각 원문 화면의 다운로드 버튼으로 파일을 저장할 수 있습니다.</p>
+  </article>
+</section>
+
+<section class="docs-language" data-lang="en" hidden>
+  <aside class="docs-nav"><a href="#overview-en">Overview</a><a href="#allowed-en">Permitted Use</a><a href="#restricted-en">Restrictions</a><a href="#redistribution-en">Modification &amp; Distribution</a><a href="#commercial-en">Commercial License</a><a href="#third-party-en">Third-party Material</a><a href="#legal-en">Legal Documents</a></aside>
+  <article class="docs card">
+    <h2 id="overview-en">Overview</h2>
+    <p>ATT&amp;CK Visualizer's project code and assets are source-available under the <strong>PolyForm Noncommercial License 1.0.0</strong>. This is not an OSI-approved open-source license because commercial use is restricted.</p>
+    <div class="terms-summary">
+      <section class="permitted"><h3>Permitted</h3><p>Personal study, research, experimentation, and hobby use described by the license; use by the listed noncommercial organizations; and modification or redistribution for the same permitted purposes</p></section>
+      <section class="restricted"><h3>Separate permission required</h3><p>Internal use by for-profit organizations, client work, consulting, paid training, commercial product integration, resale, and commercial hosted or managed services</p></section>
+    </div>
+    <h2 id="allowed-en">Permitted Use</h2>
+    <ul><li>Personal study, research, experimentation, testing, and hobby projects without an anticipated commercial application</li><li>Use by the charitable, educational, public research, public safety or health, environmental protection, and government institutions named in the license</li><li>Copying and redistribution of original or modified versions for those permitted purposes</li></ul>
+    <h2 id="restricted-en">Restrictions</h2>
+    <p>Attribution alone does not permit commercial use. The public license does not permit internal use by a for-profit organization—including internal analysis, evaluation, or proofs of concept—work for an employer or client, paid consulting or training, product bundling, resale, SaaS, or managed commercial services.</p>
+    <h2 id="redistribution-en">Modification and Redistribution</h2>
+    <p>You may modify and redistribute the software only for permitted noncommercial purposes. Recipients must receive the <code>LICENSE</code> terms or their official URL and every <code>Required Notice:</code> line supplied with the software. Retain the original project link and copyright notice, and clearly identify modified versions so that they are not mistaken for the original project.</p>
+    <h2 id="commercial-en">Commercial License</h2>
+    <p>Commercial use, including internal use by a for-profit organization, requires a separate written license from the copyright holder. The public license grants no commercial-use rights.</p>
+    <h2 id="third-party-en">MITRE ATT&amp;CK and Third-party Material</h2>
+    <p>The bundled MITRE ATT&amp;CK® STIX data is third-party material and is not relicensed under the project's PolyForm license. Copies must retain MITRE's copyright designation and license. This project is not sponsored, endorsed, or certified by MITRE. Other third-party components, including Python packages, remain subject to their own licenses.</p>
+    <h2 id="legal-en">Legal Documents</h2>
+    <p>This page is a plain-language summary. If it conflicts with the terms, the local <a href="/legal/documents/license" target="_blank" rel="noopener noreferrer">LICENSE text ↗</a> controls. You can also open the <a href="/legal/documents/notice" target="_blank" rel="noopener noreferrer">attribution and third-party notices ↗</a> and the <a href="/legal/documents/mitre-attack-license" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK data license ↗</a> in new tabs. Each document screen provides an explicit download button.</p>
+  </article>
+</section>
+{% endblock %}

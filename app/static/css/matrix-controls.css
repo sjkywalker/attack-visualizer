@@ -1,0 +1,187 @@
+/* Matrix-specific layout, visibility, and zoom controls. */
+.matrix-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 52px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #0a151f;
+}
+
+.visibility-controls,
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbar-label {
+  color: #7890a2;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.toolbar-divider { width: 1px; height: 20px; margin: 0 2px; background: #294052; }
+
+.toggle {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 5px;
+  color: #b9cad7;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.toggle input {
+  margin: 0;
+  accent-color: var(--cyan);
+}
+
+.zoom-controls input[type="range"] {
+  width: 130px;
+  padding: 0;
+  accent-color: var(--cyan);
+}
+
+.zoom-input-wrap{display:flex;grid-template-columns:none;align-items:center;gap:3px;color:#cfe0ea}.zoom-input-wrap input{width:54px;height:28px;padding:3px 5px;text-align:right;font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace}.zoom-input-wrap span{font-size:11px}
+
+.zoom-button,
+.fit-button {
+  height: 28px;
+  border: 1px solid #30485c;
+  border-radius: 5px;
+  background: #132432;
+  color: #cfe0ea;
+  cursor: pointer;
+}
+
+.zoom-button { width: 28px; padding: 0; font-size: 16px; }
+.fit-button { padding: 0 9px; font: 600 11px inherit; }
+.zoom-button:hover,
+.fit-button:hover { border-color: var(--cyan); color: #fff; }
+
+.chip.active .chip-dot { animation: campaign-dot-breathe 2.2s ease-in-out infinite; }
+.layer-filter-chip, .campaign-filter-chip { position: relative; cursor: grab; will-change: transform; }
+.layer-filter-chip:active, .campaign-filter-chip:active { cursor: grabbing; }
+.layer-filter-chip.dragging, .campaign-filter-chip.dragging { opacity: .48; border-style: dashed; box-shadow: 0 0 0 2px #3ddbd926; }
+.layer-drag { margin-right: 5px; color: #7591a3; font-size: 12px; line-height: 1; }
+.layer-filter-chip:hover .layer-drag,
+.campaign-filter-chip:hover .layer-drag { color: var(--cyan); }
+.badge.more { background: transparent; color: #bce7ea; cursor: pointer; user-select: none; }
+.badge.more.expand { border-style: dashed; }
+.badge.more.collapse { border-color: transparent; background: transparent; color: #8da2b5; }
+.badge.more.collapse:hover, .badge.more.collapse:focus-visible { color: #fff; border-color: transparent; }
+.badge.more:hover, .badge.more:focus-visible { border-color: var(--cyan); color: #fff; outline: none; }
+@keyframes campaign-dot-breathe {
+  0%, 100% { filter: brightness(.9); box-shadow: 0 0 4px var(--chip-color, var(--cyan)); }
+  50% { filter: brightness(1.3); box-shadow: 0 0 11px var(--chip-color, var(--cyan)), 0 0 4px var(--chip-color, var(--cyan)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip.active .chip-dot { animation: none; box-shadow: 0 0 7px var(--chip-color, var(--cyan)); }
+}
+
+.tooltip dl { grid-template-columns: 82px minmax(0, 1fr); column-gap: 8px; }
+.tip-campaign-kicker { display: flex; align-items: center; gap: 7px; color: var(--cyan); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.tip-campaign-kicker i { width: 8px; height: 8px; border-radius: 50%; background: var(--tip-campaign-color); box-shadow: 0 0 8px var(--tip-campaign-color); }
+.tip-campaign-badge { display: inline-block; max-width: 190px; overflow: hidden; padding: 2px 6px; border: 1px solid color-mix(in srgb,var(--badge) 60%,#fff); border-radius: 3px; background: color-mix(in srgb,var(--badge) 25%,#071019); color: #fff; font-size: 10px; font-weight: 600; line-height: 1.35; text-overflow: ellipsis; vertical-align: middle; white-space: nowrap; }
+.tooltip .tip-campaign-details { row-gap: 5px; margin-bottom: 0; }
+.tip-campaign-description { display: -webkit-box; overflow: hidden; color: #aec1d0; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.tip-layer-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.tip-layer-badge { display: inline-block; padding: 1px 5px; border: 1px solid #315066; border-radius: 3px; background: #10202d; color: #bad0dd; font-size: 9px; line-height: 1.45; }
+
+.matrix-viewport {
+  overflow: auto;
+  background: #0b1620;
+}
+
+.matrix {
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  grid-auto-columns: 150px;
+  zoom: var(--matrix-zoom, 1);
+}
+
+/* top:64px caused a blank strip inside the horizontally scrolling matrix. */
+.tactic-title {
+  top: 0;
+  height: 72px;
+  padding: 11px 13px;
+  box-shadow: 0 5px 10px #050b1166;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tactic-title:hover { background: #163047; border-bottom-color: var(--cyan); }
+
+.technique-list { padding-top: 10px; }
+.technique .tname { overflow-wrap: anywhere; word-break: normal; }
+.technique-row { position: relative; }
+.technique-row.is-subtechnique {
+  margin-left: 10px;
+  padding-left: 7px;
+}
+.technique-row.is-subtechnique::before {
+  content: "";
+  position: absolute;
+  top: 27px;
+  left: 0;
+  width: 6px;
+  border-top: 1px solid #2d4658;
+}
+.technique-row.is-subtechnique::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -8px;
+  bottom: 0;
+  left: 0;
+  border-left: 1px solid #2d4658;
+}
+.technique-row.is-subtechnique > .subtechnique { margin-left: 0; }
+.subtech-label {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 3px;
+  border: 1px solid #3b586d;
+  border-radius: 3px;
+  color: #7192aa;
+  font-size: 7px;
+  letter-spacing: .06em;
+  vertical-align: 1px;
+}
+.technique-row.has-subtechniques > .technique { padding-right: 35px; }
+.subtech-toggle {
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 27px;
+  height: 22px;
+  padding: 0 4px;
+  border: 1px solid #355064;
+  border-radius: 4px;
+  background: #0a1721;
+  color: #8fb2c8;
+  cursor: pointer;
+  font: 600 9px ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.subtech-toggle:hover { border-color: var(--cyan); color: #fff; }
+.technique.ancestor-context { border-left-color: #587387; background: #12202b; }
+.ancestor-note { display: block; margin-top: 5px; color: #7895a8; font-size: 9px; }
+.matrix-empty { padding: 36px; color: var(--muted); text-align: center; }
+
+@media (max-width: 800px) {
+  .matrix-toolbar { align-items: flex-start; flex-direction: column; }
+  .zoom-controls input[type="range"] { width: 100px; }
+  .toolbar-divider { display: none; }
+}

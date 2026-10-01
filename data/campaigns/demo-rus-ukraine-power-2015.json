@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — 2015 Ukraine Electric Power Attack",
+  "nickname": "UA Power 2015",
+  "attribution_candidates": [
+    "Russia-linked Sandworm Team"
+  ],
+  "description": "Demo scenario inspired by the publicly documented 2015 Ukraine electric power attack. Enterprise behaviors and contextual reconnaissance are enriched for matrix visualization; this is not an authoritative incident reconstruction or an ICS ATT&CK layer.",
+  "color": "#3b82f6",
+  "layers": [
+    {
+      "name": "Target Reconnaissance",
+      "description": "Research victim domains, personnel, software, and business relationships to prepare targeted access against critical infrastructure operators.",
+      "techniques": [
+        "T1590.001",
+        "T1589.002",
+        "T1589.003",
+        "T1592.002",
+        "T1591.002"
+      ]
+    },
+    {
+      "name": "Corporate Perimeter",
+      "description": "Deliver malicious Office attachments and rely on user interaction to establish the initial enterprise foothold.",
+      "techniques": [
+        "T1566.001",
+        "T1204.002",
+        "T1059.005",
+        "T1105"
+      ]
+    },
+    {
+      "name": "Enterprise Network",
+      "description": "Execute BlackEnergy-related components, discover reachable systems, capture credentials from network traffic, and move toward operational access paths.",
+      "techniques": [
+        "T1218.011",
+        "T1055",
+        "T1112",
+        "T1071.001",
+        "T1018",
+        "T1040",
+        "T1078",
+        "T1133"
+      ]
+    },
+    {
+      "name": "Critical Operations Boundary",
+      "description": "Represent enterprise-visible preparation and disruptive effects around critical operations while retaining Enterprise ATT&CK identifiers only.",
+      "techniques": [
+        "T1489",
+        "T1485",
+        "T1529",
+        "T1685",
+        "T1070.004"
+      ]
+    }
+  ]
+}

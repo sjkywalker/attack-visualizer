@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}도움말 · ATT&CK Visualizer{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/help.css') }}">{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div><p class="eyebrow">DOCUMENTATION</p><h1 data-i18n="help_title">도움말</h1><p data-i18n="help_text">캠페인 JSON 작성부터 매트릭스 분석까지.</p></div>
+</section>
+
+<section class="docs-language" data-lang="ko">
+  <aside class="docs-nav">
+    <a href="#start-ko">시작하기</a><a href="#format-ko">JSON 형식</a><a href="#layers-ko">캠페인 레이어</a><a href="#management-ko">캠페인 관리</a><a href="#platform-ko">OS별 실행</a><a href="#matrix-ko">매트릭스 사용</a><a href="#validation-ko">검증 상태</a><a href="#license-ko">이용 조건·면책</a><a href="#faq-ko">FAQ</a>
+  </aside>
+  <article class="docs card">
+    <h2 id="start-ko">시작하기</h2>
+    <ol><li>캠페인 JSON 파일을 만듭니다.</li><li><code>data/campaigns/</code> 안에 저장합니다.</li><li>앱을 열고 하나 이상의 캠페인을 선택합니다.</li><li>레이어 필터와 검색으로 행위를 분석합니다.</li></ol>
+
+    <h2 id="format-ko">캠페인 JSON 형식</h2>
+    <pre><code>{
+  "schema_version": "1.0",
+  "name": "Operation Black Frost",
+  "nickname": "Black Frost",
+  "description": "Example campaign",
+  "color": "#ff4d4d",
+  "attribution_candidates": ["Example Threat Group"],
+  "layers": [
+    {
+      "name": "External",
+      "description": "Initial access boundary",
+      "techniques": ["T1595.002", "T1190"]
+    },
+    {"name": "DMZ", "techniques": ["T1046", "T1059.001"]}
+  ]
+}</code></pre>
+    <p>필수 필드는 <code>schema_version</code>, <code>name</code>, <code>layers</code>, 각 레이어의 <code>name</code>과 <code>techniques</code>입니다. 기술 이름 대신 T-code를 저장합니다. nickname, 설명, 색상, 귀속 후보와 레이어 설명은 선택 사항입니다.</p>
+
+    <h2 id="layers-ko">캠페인 레이어</h2>
+    <p>레이어는 ATT&amp;CK 전술이 아니라 공격자가 통과하는 물리적·논리적 경계입니다. 배열 순서가 진행 순서이며 같은 기술을 여러 레이어에 반복해서 사용할 수 있습니다.</p>
+
+    <h2 id="management-ko">캠페인 관리</h2>
+    <ul><li>웹에서 JSON을 생성·조회·편집·파일명 변경·복제·삭제하며 JSON 파일이 유일한 원본입니다.</li><li>새 캠페인의 파일명을 비워 두면 이름에서 자동 생성됩니다. 편집할 때는 <code>.json</code> 파일명을 직접 변경할 수 있으며 기존 파일과의 충돌 및 안전하지 않은 경로는 거부됩니다.</li><li>관리 목록과 메인 화면의 기본 캠페인 순서는 파일명 기준 오름차순입니다. 메인 화면에서는 이후 드래그해 표시 순서를 바꿀 수 있습니다.</li><li>nickname, 여러 귀속 후보, 여러 줄 설명, 색상 선택기·HEX와 11색 팔레트를 지원합니다.</li><li>편집 내용이 바뀐 상태에서 Esc, 취소 또는 닫기를 사용하면 저장하지 않고 나갈지 확인합니다.</li><li>레이어 카드를 드래그하고 저장하면 실제 <code>layers</code> 배열 순서가 바뀝니다.</li><li>잘못된 캠페인은 오류와 함께 관리 화면에 남고 메인 시각화에서는 제외됩니다.</li></ul>
+    <p>기본 데모는 북한 연계 Operation Dream Job·WannaCry, 중국 연계 Operation CuckooBees·Operation Wocao, 러시아 연계 2015 Ukraine Electric Power Attack·NotPetya의 여섯 시나리오입니다. 국가별 색상 계열을 공유하고 Reconnaissance부터 Impact까지 다양한 행위와 현실적인 중첩을 보여줍니다. 공개 자료를 시각화 목적으로 보강한 데모이므로 권위 있는 사건 재구성으로 사용하지 마십시오.</p>
+
+    <h2 id="platform-ko">OS별 실행</h2>
+    <ul><li>Ubuntu/Linux와 macOS에서는 <code>./scripts/docker.sh rebuild</code>를 사용합니다. Unix wrapper는 현재 UID/GID를 전달해 캠페인 bind mount의 권한 충돌을 줄입니다.</li><li>Windows에서는 Docker Desktop의 Linux containers 및 WSL2 backend를 권장하며 PowerShell에서 <code>.\scripts\docker.ps1 rebuild</code>를 사용합니다.</li><li>Docker 없이 실행할 때는 Python 3.12 가상환경과 <code>requirements.txt</code>를 사용합니다. 테스트에는 <code>requirements-dev.txt</code>를 설치합니다.</li><li>최초 이미지 빌드에는 패키지 다운로드용 네트워크가 필요하지만 빌드 후 ATT&amp;CK 분석은 오프라인으로 동작합니다.</li></ul>
+
+    <h2 id="matrix-ko">매트릭스 사용</h2>
+    <ul>
+      <li>처음에는 모든 유효 캠페인과 모든 레이어가 선택됩니다.</li>
+      <li>캠페인은 파일명순이며 칩에는 nickname을 표시합니다. hover하면 색상 점, 정식 이름, nickname 배지, 귀속 후보, 설명, 레이어 배지와 고유 Techniques 수가 표시됩니다.</li>
+      <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되며, 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
+      <li>여러 캠페인이 공유하는 셀은 색상을 혼합합니다. 세 개 이상이면 두 배지와 <code>더보기 +N</code>을 표시합니다. 캠페인 배지의 모두 펼치기/모두 접기로 중첩 셀을 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
+      <li>하위 기술은 메인·전술·기술 화면에서 일관된 branch 연결선과 SUB 표식으로 구분합니다. 사용된 하위 기술의 부모는 문맥상 유지하지만 자동 강조하지 않습니다.</li>
+      <li>미사용 전술·기술·하위 기술을 따로 숨기고, 부모별 하위 기술을 수동 접기/펼치기 할 수 있습니다.</li>
+      <li>0–100%를 1% 단위로 조절하거나 전체 열 맞춤을 사용할 수 있습니다.</li>
+      <li>T-code와 기술 이름 검색 결과는 캠페인 색상과 별도의 윤곽선으로 표시합니다.</li>
+      <li>전술 헤더와 기술을 hover하면 요약을 보고, 클릭하면 새 탭의 내부 상세 페이지와 MITRE 원문 링크를 확인합니다.</li>
+      <li>PNG는 현재 필터, 검색, 숨김, 접기, 배지와 배율을 반영합니다. SVG 내보내기는 비활성화되어 있습니다.</li>
+    </ul>
+
+    <h2 id="validation-ko">검증 상태</h2>
+    <ul><li><strong>Valid</strong>: JSON, schema version, 필수 필드·타입과 모든 T-code가 유효합니다.</li><li><strong>Warning</strong>: 스키마는 유효하지만 알 수 없는 T-code가 있어 시각화에서 제외됩니다.</li><li><strong>Invalid</strong>: JSON 구문, 지원 버전, 필수 필드 또는 타입이 잘못되었습니다.</li></ul>
+    <p>Status를 hover하면 기준을 확인할 수 있으며 Valid 점에는 은은한 glow가 표시됩니다.</p>
+
+    <h2 id="license-ko">이용 조건</h2>
+    <p>프로젝트 자체 코드와 자산은 PolyForm Noncommercial License 1.0.0으로 제공됩니다. 영리기업 내부 사용을 포함한 상업적 사용에는 별도 서면 라이선스가 필요합니다. 허용된 비상업적 목적의 수정·재배포에는 원본 출처, 라이선스와 필수 고지를 유지해야 합니다. MITRE ATT&amp;CK 데이터에는 별도의 MITRE 조건이 적용됩니다. <a href="/terms">이용 조건</a>에서 정식 문서를 확인하고, 실제 국가·조직에서 영감을 받은 합성 예시의 공개 자료 참조 및 귀속 해석 범위는 <a href="/disclaimer">데모 데이터 안내</a>에서 확인하십시오.</p>
+
+    <h2 id="faq-ko">FAQ</h2>
+    <details><summary>새 캠페인은 어떻게 추가하나요?</summary><p>캠페인 관리에서 만들거나 JSON 파일을 디렉터리에 복사한 뒤 새로고침하세요.</p></details>
+    <details><summary>JSON 파일을 직접 편집해도 되나요?</summary><p>네. JSON 파일이 유일한 원본입니다.</p></details>
+    <details><summary>같은 기술이 여러 레이어에 있어도 되나요?</summary><p>네. 각 경계에서 반복되는 행위를 표현합니다.</p></details>
+    <details><summary>왜 부모 기술이 강조되지 않나요?</summary><p>명시한 T-code만 강조합니다. 부모도 강조하려면 부모 ID를 추가하세요.</p></details>
+    <details><summary>ATT&amp;CK 데이터는 어떻게 변경하나요?</summary><p><code>data/attack/enterprise-attack.json</code>을 공식 STIX 번들로 교체하고 앱을 재시작하세요. Docker 이미지의 파일을 바꾸면 재빌드해야 합니다.</p></details>
+    <details><summary>색상이 섞이는 이유는 무엇인가요?</summary><p>여러 캠페인에 공통인 기술입니다. 셀 배지로 구성 캠페인을 확인하세요.</p></details>
+    <details><summary>회사 내부에서 사용할 수 있나요?</summary><p>영리기업의 내부 분석·평가·PoC를 포함한 사용은 공개 라이선스로 허용되지 않으며 저작권자의 별도 서면 라이선스가 필요합니다.</p></details>
+  </article>
+</section>
+
+<section class="docs-language" data-lang="en" hidden>
+  <aside class="docs-nav">
+    <a href="#start-en">Getting Started</a><a href="#format-en">JSON Format</a><a href="#layers-en">Campaign Layers</a><a href="#management-en">Campaign Management</a><a href="#platform-en">OS Setup</a><a href="#matrix-en">Matrix Usage</a><a href="#validation-en">Validation</a><a href="#license-en">Terms &amp; Disclaimer</a><a href="#faq-en">FAQ</a>
+  </aside>
+  <article class="docs card">
+    <h2 id="start-en">Getting Started</h2>
+    <ol><li>Create a campaign JSON file.</li><li>Save it in <code>data/campaigns/</code>.</li><li>Open the application and select one or more campaigns.</li><li>Use layer filters and search to analyze behavior.</li></ol>
+
+    <h2 id="format-en">Campaign JSON Format</h2>
+    <pre><code>{
+  "schema_version": "1.0",
+  "name": "Operation Black Frost",
+  "nickname": "Black Frost",
+  "description": "Example campaign",
+  "color": "#ff4d4d",
+  "attribution_candidates": ["Example Threat Group"],
+  "layers": [
+    {
+      "name": "External",
+      "description": "Initial access boundary",
+      "techniques": ["T1595.002", "T1190"]
+    },
+    {"name": "DMZ", "techniques": ["T1046", "T1059.001"]}
+  ]
+}</code></pre>
+    <p>Required fields are <code>schema_version</code>, <code>name</code>, <code>layers</code>, <code>layers[].name</code>, and <code>layers[].techniques</code>. Store T-codes rather than technique names. Nickname, description, color, attribution candidates, and layer descriptions are optional.</p>
+
+    <h2 id="layers-en">Campaign Layers</h2>
+    <p>Layers are physical or logical progression boundaries, not ATT&amp;CK tactics. Array order is progression order, and a technique may appear in multiple layers.</p>
+
+    <h2 id="management-en">Campaign Management</h2>
+    <ul><li>Create, view, edit, rename, duplicate, and delete source JSON files; those files are the sole source of truth.</li><li>Leave a new campaign filename blank to generate it from the name. While editing, you can change the <code>.json</code> filename directly; collisions and unsafe paths are rejected.</li><li>The management list and the main page's initial campaign order are sorted by filename. You can then drag campaigns on the main page to change their display order.</li><li>Edit nicknames, multiple attribution candidates, multiline descriptions, picker/HEX colors, and the eleven-color palette.</li><li>If the editor has changed, Esc, Cancel, or Close asks before discarding unsaved work.</li><li>Drag layer cards and save to change the actual <code>layers</code> array order.</li><li>Invalid campaigns remain visible with errors but are excluded from visualization.</li></ul>
+    <p>The six built-in demos cover North Korea-linked Operation Dream Job and WannaCry, China-linked Operation CuckooBees and Operation Wocao, and Russia-linked 2015 Ukraine Electric Power Attack and NotPetya. Country pairs share color families and provide varied, realistically overlapping behavior from Reconnaissance through Impact. These demos enrich public reporting for visualization and are not authoritative incident reconstructions.</p>
+
+    <h2 id="platform-en">OS Setup</h2>
+    <ul><li>On Ubuntu/Linux and macOS, use <code>./scripts/docker.sh rebuild</code>. The Unix wrapper passes the current UID/GID to reduce campaign bind-mount permission conflicts.</li><li>On Windows, use Docker Desktop with Linux containers and the WSL2 backend, then run <code>.\scripts\docker.ps1 rebuild</code> in PowerShell.</li><li>For non-Docker execution, use a Python 3.12 virtual environment and <code>requirements.txt</code>. Install <code>requirements-dev.txt</code> for tests.</li><li>The first image build needs network access for packages; ATT&amp;CK analysis works offline after the image is built.</li></ul>
+
+    <h2 id="matrix-en">Matrix Usage</h2>
+    <ul>
+      <li>All valid campaigns and layers are selected initially.</li>
+      <li>Campaigns are sorted by filename while chips display nicknames. Hover for the color dot, full name, nickname badge, attribution, description, layer badges, and unique technique count.</li>
+      <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Hovering either chip type highlights its drag handle.</li>
+      <li>Shared cells blend campaign colors. For three or more campaigns, two badges and More +N appear. Expand all or Collapse all updates every overlapping cell, while individual cells remain manually adjustable.</li>
+      <li>Consistent branch lines across matrix, tactic, and technique views plus SUB labels identify sub-techniques. Parents of used children remain as context but are not automatically highlighted.</li>
+      <li>Hide unused tactics, techniques, or sub-techniques and manually collapse each parent's children.</li>
+      <li>Scale from 0–100% in 1% steps or fit all visible columns.</li>
+      <li>Search by T-code or name using an outline distinct from campaign colors.</li>
+      <li>Hover tactics and techniques for summaries; click to open internal details and MITRE source links in a new tab.</li>
+      <li>PNG export reflects current filters, search, visibility, collapse, badges, and scale. SVG export is disabled.</li>
+    </ul>
+
+    <h2 id="validation-en">Validation Status</h2>
+    <ul><li><strong>Valid</strong>: JSON, schema version, required fields and types, and all T-codes are valid.</li><li><strong>Warning</strong>: The schema is valid, but unknown T-codes exclude the campaign from visualization.</li><li><strong>Invalid</strong>: JSON syntax, supported version, required fields, or types are invalid.</li></ul>
+    <p>Hover a status for its rule. Valid status dots use a subtle glow.</p>
+
+    <h2 id="license-en">Terms of Use</h2>
+    <p>The project code and assets are available under the PolyForm Noncommercial License 1.0.0. Commercial use, including internal use by a for-profit organization, requires a separate written license. Permitted noncommercial modification and redistribution must retain the original source, license, and required notices. Separate MITRE terms apply to the ATT&amp;CK data. See <a href="/terms">Terms of Use</a> for the formal documents and <a href="/disclaimer">Demo Data Disclaimer</a> for the public-source and attribution limits of synthetic examples inspired by real countries and organizations.</p>
+
+    <h2 id="faq-en">FAQ</h2>
+    <details><summary>How do I add a campaign?</summary><p>Create it in Campaign Management or copy a JSON file into the campaign directory and refresh.</p></details>
+    <details><summary>Can I edit JSON manually?</summary><p>Yes. JSON files are the sole source of truth.</p></details>
+    <details><summary>Can a technique appear in multiple layers?</summary><p>Yes. This represents behavior repeated across boundaries.</p></details>
+    <details><summary>Why is a parent technique not highlighted?</summary><p>Only explicitly listed T-codes are highlighted. Add the parent ID separately.</p></details>
+    <details><summary>How do I replace ATT&amp;CK data?</summary><p>Replace <code>data/attack/enterprise-attack.json</code> with an official STIX bundle and restart. Rebuild Docker when changing an image-bundled file.</p></details>
+    <details><summary>Why are colors blended?</summary><p>The technique is shared by multiple campaigns. Cell badges identify the contributing campaigns.</p></details>
+    <details><summary>May my company use this internally?</summary><p>Internal analysis, evaluation, and proofs of concept by a for-profit organization are not permitted by the public license and require a separate written license from the copyright holder.</p></details>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Operation Wocao",
+  "nickname": "Wocao",
+  "attribution_candidates": [
+    "China-linked APT20"
+  ],
+  "description": "Demo scenario inspired by publicly documented Operation Wocao espionage activity. It condenses and enriches reported tradecraft into logical layers for visualization and is not an authoritative incident reconstruction.",
+  "color": "#f43f5e",
+  "layers": [
+    {
+      "name": "Adversary Infrastructure",
+      "description": "Research privileged targets, acquire servers and email accounts, and prepare public tooling for multi-hop operations.",
+      "techniques": [
+        "T1589",
+        "T1583.004",
+        "T1585.002",
+        "T1588.002",
+        "T1090.003"
+      ]
+    },
+    {
+      "name": "External Services",
+      "description": "Exploit public-facing JBoss servers or use stolen VPN access, then maintain web-based or proxied access.",
+      "techniques": [
+        "T1190",
+        "T1133",
+        "T1071.001",
+        "T1090.001",
+        "T1571"
+      ]
+    },
+    {
+      "name": "Privileged Endpoint",
+      "description": "Execute multiple scripting languages, capture credentials and MFA material, inject into processes, and evade host controls.",
+      "techniques": [
+        "T1059.001",
+        "T1059.003",
+        "T1059.005",
+        "T1059.006",
+        "T1003.001",
+        "T1555.005",
+        "T1056.001",
+        "T1111",
+        "T1055",
+        "T1027.010"
+      ]
+    },
+    {
+      "name": "Enterprise Network",
+      "description": "Discover accounts, services, shares, and storage; move tools laterally; automate collection; and remove operational traces.",
+      "techniques": [
+        "T1087.002",
+        "T1046",
+        "T1135",
+        "T1680",
+        "T1570",
+        "T1003.006",
+        "T1119",
+        "T1115",
+        "T1560.001",
+        "T1041",
+        "T1070.004"
+      ]
+    }
+  ]
+}

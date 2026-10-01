@@ -1,0 +1,22 @@
+name: attack-visualizer
+
+services:
+  attack-visualizer:
+    build:
+      context: .
+    image: attack-visualizer:local
+    container_name: attack-visualizer
+    user: "${ATTVIZ_UID:-10001}:${ATTVIZ_GID:-10001}"
+    ports:
+      - "127.0.0.1:${ATTVIZ_PORT}:${ATTVIZ_PORT}"
+    environment:
+      ATTVIZ_PORT: "${ATTVIZ_PORT}"
+      ATTVIZ_ATTACK_VERSION: "19.2"
+      ATTVIZ_ATTACK_DATA: /app/data/attack/enterprise-attack.json
+      ATTVIZ_CAMPAIGN_DIR: /app/data/campaigns
+    volumes:
+      - type: bind
+        source: ./data/campaigns
+        target: /app/data/campaigns
+    restart: unless-stopped
+    init: true

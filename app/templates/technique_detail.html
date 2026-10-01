@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ technique.id }} {{ technique.name }} · ATT&CK Visualizer{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="/" data-i18n="matrix_breadcrumb">Enterprise Matrix</a><span>›</span><span>{{ technique.id }}</span></nav>
+<section class="detail-hero card">
+  <div><p class="eyebrow">{{ "SUB-TECHNIQUE" if technique.parent_id else "TECHNIQUE" }}</p><h1><code>{{ technique.id }}</code> {{ technique.name }}</h1><p>{{ technique.description }}</p></div>
+  <a class="secondary external-link" href="{{ technique.url }}" target="_blank" rel="noopener noreferrer" data-i18n="mitre_source">MITRE 원문 ↗</a>
+</section>
+<div class="detail-grid">
+  <section class="card detail-section"><h2 data-i18n="attack_info">ATT&amp;CK 정보</h2><dl class="metadata"><dt data-i18n="tactic">전술</dt><dd>{% for tactic in technique.tactics %}<a href="/tactics/{{ tactic }}">{{ tactic | replace('-', ' ') | title }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</dd><dt data-i18n="platforms">플랫폼</dt><dd>{{ technique.platforms | join(', ') or '—' }}</dd><dt data-i18n="parent_technique">부모 기술</dt><dd>{% if parent %}<a href="/techniques/{{ parent.id }}">{{ parent.id }} {{ parent.name }}</a>{% else %}—{% endif %}</dd></dl>{% if children %}<h3 class="child-tree-parent-label"><code>{{ technique.id }}</code> {{ technique.name }}</h3><div class="family-children detail-child-list">{% for child in children %}<a href="/techniques/{{ child.id }}" class="detail-technique is-sub"><code>{{ child.id }}</code><span>{{ child.name }}</span></a>{% endfor %}</div>{% endif %}</section>
+  <section class="card detail-section"><h2><span data-i18n="used_campaigns">사용 캠페인</span> <span class="count-pill">{{ usage | length }}</span></h2>{% if usage %}<div class="usage-list">{% for item in usage %}<article class="usage-card" style="--campaign-color:{{ item.record.assigned_color }}"><div><strong>{{ item.record.campaign.nickname or item.record.campaign.name }}</strong><p>{{ item.record.campaign.name }}</p></div>{% if item.record.campaign.attribution_candidates %}<div class="attribution-list"><span data-i18n="attribution_candidates">귀속 후보</span>{% for candidate in item.record.campaign.attribution_candidates %}<b>{{ candidate }}</b>{% endfor %}</div>{% endif %}<div class="layer-badges">{% for layer in item.layers %}<span>{{ layer.name }}</span>{% endfor %}</div>{% if item.record.campaign.description %}<p>{{ item.record.campaign.description }}</p>{% endif %}</article>{% endfor %}</div>{% else %}<p class="empty-detail" data-i18n="no_usage">현재 유효한 캠페인 JSON에서 이 T-code를 명시적으로 사용하지 않습니다.</p>{% endif %}</section>
+</div>
+{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/details.css') }}">{% endblock %}
