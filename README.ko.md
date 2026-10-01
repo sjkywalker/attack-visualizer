@@ -6,6 +6,9 @@ ATT&CK Visualizer는 캠페인 단위 공격 행위를 **MITRE ATT&CK Enterprise
 비교하는 로컬·오프라인 우선 웹 애플리케이션입니다. 캠페인 JSON 파일을 원본으로
 사용하며 별도 데이터베이스가 필요하지 않습니다.
 
+<p align="center"><img src="demo.ko.png" alt="ATT&amp;CK Visualizer 캠페인 매트릭스 대시보드" width="100%"></p>
+<p align="center"><em>선택한 캠페인과 레이어를 ATT&amp;CK Enterprise Matrix에 표시한 화면입니다.</em></p>
+
 - Python 3.11+ / FastAPI / Jinja2 / Vanilla JavaScript
 - MITRE ATT&CK Enterprise v19.2
 - Docker 또는 로컬 Python 실행

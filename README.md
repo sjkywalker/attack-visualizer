@@ -6,6 +6,9 @@ ATT&CK Visualizer is a local-first web application for comparing campaign-level
 adversary behavior across the **MITRE ATT&CK Enterprise Matrix**. Campaign JSON
 files are the source of truth, and no database is required.
 
+<p align="center"><img src="demo.png" alt="ATT&amp;CK Visualizer campaign matrix dashboard" width="100%"></p>
+<p align="center"><em>Campaign and layer selections mapped onto the ATT&amp;CK Enterprise Matrix.</em></p>
+
 - Python 3.11+ / FastAPI / Jinja2 / Vanilla JavaScript
 - MITRE ATT&CK Enterprise v19.2
 - Docker or local Python operation
