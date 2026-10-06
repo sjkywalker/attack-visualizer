@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Response, status
 
-from app.models.campaign import Campaign
+from app.models.campaign import Campaign, TechniqueStatusUpdate
 
 router = APIRouter(prefix="/api/campaigns", tags=["Campaigns"])
 
@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/campaigns", tags=["Campaigns"])
 def serialize(record):
     data = record.model_dump()
     if data.get("campaign"):
-        data["technique_count"] = len({t for layer in data["campaign"]["layers"] for t in layer["techniques"]})
+        data["technique_count"] = len({t["id"] for layer in data["campaign"]["layers"] for t in layer["techniques"]})
     return data
 
 
@@ -45,6 +45,21 @@ def update_campaign(filename: str, campaign: Campaign, request: Request, new_fil
         raise HTTPException(404, str(exc)) from exc
     except FileExistsError as exc:
         raise HTTPException(409, f"Campaign file already exists: {exc}") from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@router.patch("/{filename}/techniques/{technique_id}")
+def update_technique_status(
+    filename: str, technique_id: str, update: TechniqueStatusUpdate, request: Request
+):
+    try:
+        record = request.app.state.campaigns.set_technique_status(
+            filename, technique_id, update.status, update.layer_indexes
+        )
+        return serialize(record)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
 

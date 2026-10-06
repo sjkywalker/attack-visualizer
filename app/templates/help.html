@@ -26,19 +26,23 @@
     {
       "name": "External",
       "description": "Initial access boundary",
-      "techniques": ["T1595.002", "T1190"]
+      "techniques": [
+        {"id": "T1595.002", "status": "seen"},
+        {"id": "T1190", "status": "unseen", "comment": "Awaiting firewall corroboration."}
+      ]
     },
-    {"name": "DMZ", "techniques": ["T1046", "T1059.001"]}
+    {"name": "DMZ", "techniques": [{"id": "T1046", "status": "seen"}]}
   ]
 }</code></pre>
-    <p>필수 필드는 <code>schema_version</code>, <code>name</code>, <code>layers</code>, 각 레이어의 <code>name</code>과 <code>techniques</code>입니다. 기술 이름 대신 T-code를 저장합니다. nickname, 설명, 색상, 귀속 후보와 레이어 설명은 선택 사항입니다.</p>
+    <p>필수 필드는 <code>schema_version</code>, <code>name</code>, <code>layers</code>, 각 레이어의 <code>name</code>과 <code>techniques</code>, 각 기술의 <code>id</code>와 <code>status</code>입니다. status는 <code>seen</code> 또는 <code>unseen</code> 중 하나이며 <code>comment</code>는 선택 사항입니다. 이전 문자열 T-code 형식도 seen으로 읽고 웹에서 저장하면 객체 형식으로 정규화합니다.</p>
 
     <h2 id="layers-ko">캠페인 레이어</h2>
-    <p>레이어는 ATT&amp;CK 전술이 아니라 공격자가 통과하는 물리적·논리적 경계입니다. 배열 순서가 진행 순서이며 같은 기술을 여러 레이어에 반복해서 사용할 수 있습니다.</p>
+    <p>레이어는 ATT&amp;CK 전술이나 정해진 네트워크 계층이 아니라 사용자가 원하는 추상화 수준으로 정의하는 분석 단위입니다. 네트워크 구역, 단일 자산, 실행 환경, 보안 영역 또는 논리적 공격 구간처럼 분석 목적에 맞는 기준을 사용할 수 있습니다. 한 캠페인에서는 하나의 구분 기준을 일관되게 사용하는 것을 권장합니다. 배열 순서는 분석자가 의도한 진행 흐름이며 같은 기술을 여러 레이어에 반복해서 사용할 수 있습니다. 서비스는 레이어 이름이나 유형을 강제하지 않습니다.</p>
+    <p>기본 데모는 비교하기 쉽도록 신뢰 영역과 태그 하나를 조합한 <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code> 명명 방식을 사용합니다. 예: <code>EXT-INFRA</code>, <code>DMZ-WEB</code>, <code>INT-ENDPOINT</code>. 이 방식은 데모 convention이며 사용자 캠페인에 강제되지 않습니다.</p>
 
     <h2 id="management-ko">캠페인 관리</h2>
-    <ul><li>웹에서 JSON을 생성·조회·편집·파일명 변경·복제·삭제하며 JSON 파일이 유일한 원본입니다.</li><li>새 캠페인의 파일명을 비워 두면 이름에서 자동 생성됩니다. 편집할 때는 <code>.json</code> 파일명을 직접 변경할 수 있으며 기존 파일과의 충돌 및 안전하지 않은 경로는 거부됩니다.</li><li>관리 목록과 메인 화면의 기본 캠페인 순서는 파일명 기준 오름차순입니다. 메인 화면에서는 이후 드래그해 표시 순서를 바꿀 수 있습니다.</li><li>nickname, 여러 귀속 후보, 여러 줄 설명, 색상 선택기·HEX와 11색 팔레트를 지원합니다.</li><li>편집 내용이 바뀐 상태에서 Esc, 취소 또는 닫기를 사용하면 저장하지 않고 나갈지 확인합니다.</li><li>레이어 카드를 드래그하고 저장하면 실제 <code>layers</code> 배열 순서가 바뀝니다.</li><li>잘못된 캠페인은 오류와 함께 관리 화면에 남고 메인 시각화에서는 제외됩니다.</li></ul>
-    <p>기본 데모는 북한 연계 Operation Dream Job·WannaCry, 중국 연계 Operation CuckooBees·Operation Wocao, 러시아 연계 2015 Ukraine Electric Power Attack·NotPetya의 여섯 시나리오입니다. 국가별 색상 계열을 공유하고 Reconnaissance부터 Impact까지 다양한 행위와 현실적인 중첩을 보여줍니다. 공개 자료를 시각화 목적으로 보강한 데모이므로 권위 있는 사건 재구성으로 사용하지 마십시오.</p>
+    <ul><li>웹에서 JSON을 생성·조회·편집·파일명 변경·복제·삭제하며 JSON 파일이 유일한 원본입니다.</li><li>새 캠페인의 파일명을 비워 두면 이름에서 자동 생성됩니다. 편집할 때는 <code>.json</code> 파일명을 직접 변경할 수 있으며 기존 파일과의 충돌 및 안전하지 않은 경로는 거부됩니다.</li><li>관리 목록과 메인 화면의 기본 캠페인 순서는 파일명 기준 오름차순입니다. 메인 화면에서는 이후 드래그해 표시 순서를 바꿀 수 있습니다.</li><li>nickname, 여러 귀속 후보, 여러 줄 설명, 색상 선택기·HEX와 44색 팔레트를 지원합니다. 팔레트 열은 같은 색상 계열로 정렬되고 행은 위에서 아래로 밝음·중간·진함·어두움의 명도 그라데이션입니다.</li><li>빈 입력란은 저장되지 않는 간단한 예시를 표시합니다. Layer 이름에는 <code>EXT-INFRA / DMZ-WEB / INT-ENDPOINT</code> 예시가 보이지만 실제 이름은 제한하지 않습니다.</li><li>레이어마다 T-code 행을 추가하고 확인됨/미확인 중 하나를 선택하며 T-code별 분석 주석을 기록할 수 있습니다.</li><li>편집 내용이 바뀐 상태에서 Esc, 취소 또는 닫기를 사용하면 저장하지 않고 나갈지 확인합니다.</li><li>레이어 카드를 드래그하고 저장하면 실제 <code>layers</code> 배열 순서가 바뀝니다.</li><li>잘못된 캠페인은 오류와 함께 관리 화면에 남고 메인 시각화에서는 제외됩니다.</li></ul>
+    <p>기본 데모는 북한 연계 Operation Dream Job·WannaCry, 중국 연계 Operation CuckooBees·Operation Wocao, 러시아 연계 2015 Ukraine Electric Power Attack·NotPetya의 여섯 시나리오입니다. 국가별 색상 계열을 공유하고 Reconnaissance부터 Impact까지 다양한 행위와 현실적인 중첩을 보여줍니다. WannaCry의 <code>T1210</code>은 <code>INT-ENDPOINT</code>에서 미확인, <code>INT-NETWORK</code>에서 확인됨으로 설정되어 혼합 상태를 시연합니다. 주석은 두 상태 모두에서 분석 근거와 맥락을 기록하며 미확인 전용 필드가 아닙니다. 공개 자료를 시각화 목적으로 보강한 데모이므로 권위 있는 사건 재구성으로 사용하지 마십시오.</p>
 
     <h2 id="platform-ko">OS별 실행</h2>
     <ul><li>Ubuntu/Linux와 macOS에서는 <code>./scripts/docker.sh rebuild</code>를 사용합니다. Unix wrapper는 현재 UID/GID를 전달해 캠페인 bind mount의 권한 충돌을 줄입니다.</li><li>Windows에서는 Docker Desktop의 Linux containers 및 WSL2 backend를 권장하며 PowerShell에서 <code>.\scripts\docker.ps1 rebuild</code>를 사용합니다.</li><li>Docker 없이 실행할 때는 Python 3.12 가상환경과 <code>requirements.txt</code>를 사용합니다. 테스트에는 <code>requirements-dev.txt</code>를 설치합니다.</li><li>최초 이미지 빌드에는 패키지 다운로드용 네트워크가 필요하지만 빌드 후 ATT&amp;CK 분석은 오프라인으로 동작합니다.</li></ul>
@@ -47,12 +51,14 @@
     <ul>
       <li>처음에는 모든 유효 캠페인과 모든 레이어가 선택됩니다.</li>
       <li>캠페인은 파일명순이며 칩에는 nickname을 표시합니다. hover하면 색상 점, 정식 이름, nickname 배지, 귀속 후보, 설명, 레이어 배지와 고유 Techniques 수가 표시됩니다.</li>
-      <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되며, 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
-      <li>여러 캠페인이 공유하는 셀은 색상을 혼합합니다. 세 개 이상이면 두 배지와 <code>더보기 +N</code>을 표시합니다. 캠페인 배지의 모두 펼치기/모두 접기로 중첩 셀을 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
+      <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. Layer의 기본 표시는 <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, 기타 이름 순이고 각 그룹 안에서는 알파벳순입니다. 새로 등장한 Layer도 해당 그룹 위치에 들어가며 사용자가 드래그해 다시 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되고 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
+      <li>여러 캠페인이 공유하는 셀은 색상을 혼합합니다. 최초 로드에서는 모든 캠페인 배지를 펼쳐 표시합니다. 모두 접기를 사용하면 세 개 이상인 셀은 두 배지와 <code>더보기 +N</code>으로 축약되며, 모두 펼치기/모두 접기로 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
+      <li>캠페인 배지 옆에는 배지와 구분되는 테두리 없는 단일 상태 컨트롤이 있습니다. 한 Layer에만 있는 T-code와 여러 Layer에 있는 T-code 모두 클릭하면 같은 Layer별 팝오버가 열리며 상태와 주석을 보여줍니다. 각 Layer는 개별 저장할 수 있고, 모두 변경 작업은 영향받는 Layer 수를 표시하고 확인 후 저장합니다. Layer 상태가 다르면 JSON에는 없는 집계 표시인 <code>혼합</code>으로 나타납니다. 셀에는 별도의 주석 표식을 표시하지 않습니다.</li>
+      <li>캠페인 배지 도구 옆의 확인됨·미확인 체크박스로 해당 진행 상태의 사용분만 필터링합니다. 둘 다 기본 선택이며, 둘 다 해제하면 캠페인 강조가 사라집니다. ATT&amp;CK 참조 셀은 미사용 항목 표시 설정에 따라 계속 보일 수 있습니다.</li>
       <li>하위 기술은 메인·전술·기술 화면에서 일관된 branch 연결선과 SUB 표식으로 구분합니다. 사용된 하위 기술의 부모는 문맥상 유지하지만 자동 강조하지 않습니다.</li>
-      <li>미사용 전술·기술·하위 기술을 따로 숨기고, 부모별 하위 기술을 수동 접기/펼치기 할 수 있습니다.</li>
-      <li>0–100%를 1% 단위로 조절하거나 전체 열 맞춤을 사용할 수 있습니다.</li>
-      <li>T-code와 기술 이름 검색 결과는 캠페인 색상과 별도의 윤곽선으로 표시합니다.</li>
+      <li>최초 로드에서는 미사용 전술만 표시하고 미사용 기술·하위 기술은 숨깁니다. 이후 세 항목을 독립적으로 표시하거나 숨기고, 부모별 하위 기술을 수동 접기/펼치기 할 수 있습니다.</li>
+      <li>최초 로드에서는 전체 열 맞춤을 자동 실행합니다. 이후 0–100%를 1% 단위로 조절하거나 전체 열 맞춤을 다시 사용할 수 있습니다.</li>
+      <li>T-code와 기술 이름 검색 결과는 캠페인 색상과 별도의 윤곽선으로 표시합니다. 검색어가 있으면 입력창 오른쪽의 <code>×</code> 버튼으로 검색어와 강조를 한 번에 지울 수 있습니다.</li>
       <li>전술 헤더와 기술을 hover하면 요약을 보고, 클릭하면 새 탭의 내부 상세 페이지와 MITRE 원문 링크를 확인합니다.</li>
       <li>PNG는 현재 필터, 검색, 숨김, 접기, 배지와 배율을 반영합니다. SVG 내보내기는 비활성화되어 있습니다.</li>
     </ul>
@@ -95,19 +101,23 @@
     {
       "name": "External",
       "description": "Initial access boundary",
-      "techniques": ["T1595.002", "T1190"]
+      "techniques": [
+        {"id": "T1595.002", "status": "seen"},
+        {"id": "T1190", "status": "unseen", "comment": "Awaiting firewall corroboration."}
+      ]
     },
-    {"name": "DMZ", "techniques": ["T1046", "T1059.001"]}
+    {"name": "DMZ", "techniques": [{"id": "T1046", "status": "seen"}]}
   ]
 }</code></pre>
-    <p>Required fields are <code>schema_version</code>, <code>name</code>, <code>layers</code>, <code>layers[].name</code>, and <code>layers[].techniques</code>. Store T-codes rather than technique names. Nickname, description, color, attribution candidates, and layer descriptions are optional.</p>
+    <p>Required fields are <code>schema_version</code>, <code>name</code>, <code>layers</code>, <code>layers[].name</code>, <code>layers[].techniques</code>, and each technique's <code>id</code> and <code>status</code>. Status is either <code>seen</code> or <code>unseen</code>; <code>comment</code> is optional. Legacy string T-codes are read as seen and normalized to objects when saved in the web editor.</p>
 
     <h2 id="layers-en">Campaign Layers</h2>
-    <p>Layers are physical or logical progression boundaries, not ATT&amp;CK tactics. Array order is progression order, and a technique may appear in multiple layers.</p>
+    <p>A layer is a user-defined analytical unit, not an ATT&amp;CK tactic or a prescribed network tier. Use the abstraction level that fits the analysis, such as network zones, individual assets, execution environments, security domains, or logical campaign stages. We recommend using one consistent classification criterion within a campaign. Array order expresses the analyst's intended progression, a technique may appear in multiple layers, and the service does not enforce layer names or types.</p>
+    <p>For easier comparison, the built-in demos combine a trust zone with one tag using <code>EXT-*</code>, <code>DMZ-*</code>, and <code>INT-*</code> names, such as <code>EXT-INFRA</code>, <code>DMZ-WEB</code>, and <code>INT-ENDPOINT</code>. This is a demo convention and is not enforced for user campaigns.</p>
 
     <h2 id="management-en">Campaign Management</h2>
-    <ul><li>Create, view, edit, rename, duplicate, and delete source JSON files; those files are the sole source of truth.</li><li>Leave a new campaign filename blank to generate it from the name. While editing, you can change the <code>.json</code> filename directly; collisions and unsafe paths are rejected.</li><li>The management list and the main page's initial campaign order are sorted by filename. You can then drag campaigns on the main page to change their display order.</li><li>Edit nicknames, multiple attribution candidates, multiline descriptions, picker/HEX colors, and the eleven-color palette.</li><li>If the editor has changed, Esc, Cancel, or Close asks before discarding unsaved work.</li><li>Drag layer cards and save to change the actual <code>layers</code> array order.</li><li>Invalid campaigns remain visible with errors but are excluded from visualization.</li></ul>
-    <p>The six built-in demos cover North Korea-linked Operation Dream Job and WannaCry, China-linked Operation CuckooBees and Operation Wocao, and Russia-linked 2015 Ukraine Electric Power Attack and NotPetya. Country pairs share color families and provide varied, realistically overlapping behavior from Reconnaissance through Impact. These demos enrich public reporting for visualization and are not authoritative incident reconstructions.</p>
+    <ul><li>Create, view, edit, rename, duplicate, and delete source JSON files; those files are the sole source of truth.</li><li>Leave a new campaign filename blank to generate it from the name. While editing, you can change the <code>.json</code> filename directly; collisions and unsafe paths are rejected.</li><li>The management list and the main page's initial campaign order are sorted by filename. You can then drag campaigns on the main page to change their display order.</li><li>Edit nicknames, multiple attribution candidates, multiline descriptions, picker/HEX colors, and a 44-color palette. Columns align matching hue families while rows progress from light through medium and strong to dark.</li><li>Empty fields display non-persistent examples. The Layer name example uses <code>EXT-INFRA / DMZ-WEB / INT-ENDPOINT</code> without restricting actual names.</li><li>Add T-code rows to each layer, choose exactly one Seen/Unseen state, and record a per-T-code analyst comment.</li><li>If the editor has changed, Esc, Cancel, or Close asks before discarding unsaved work.</li><li>Drag layer cards and save to change the actual <code>layers</code> array order.</li><li>Invalid campaigns remain visible with errors but are excluded from visualization.</li></ul>
+    <p>The six built-in demos cover North Korea-linked Operation Dream Job and WannaCry, China-linked Operation CuckooBees and Operation Wocao, and Russia-linked 2015 Ukraine Electric Power Attack and NotPetya. Country pairs share color families and provide varied, realistically overlapping behavior from Reconnaissance through Impact. WannaCry sets <code>T1210</code> to Unseen in <code>INT-ENDPOINT</code> and Seen in <code>INT-NETWORK</code> to demonstrate the Mixed state. Comments record evidence and analyst context for either status and are not Unseen-only fields. These demos enrich public reporting for visualization and are not authoritative incident reconstructions.</p>
 
     <h2 id="platform-en">OS Setup</h2>
     <ul><li>On Ubuntu/Linux and macOS, use <code>./scripts/docker.sh rebuild</code>. The Unix wrapper passes the current UID/GID to reduce campaign bind-mount permission conflicts.</li><li>On Windows, use Docker Desktop with Linux containers and the WSL2 backend, then run <code>.\scripts\docker.ps1 rebuild</code> in PowerShell.</li><li>For non-Docker execution, use a Python 3.12 virtual environment and <code>requirements.txt</code>. Install <code>requirements-dev.txt</code> for tests.</li><li>The first image build needs network access for packages; ATT&amp;CK analysis works offline after the image is built.</li></ul>
@@ -116,12 +126,14 @@
     <ul>
       <li>All valid campaigns and layers are selected initially.</li>
       <li>Campaigns are sorted by filename while chips display nicknames. Hover for the color dot, full name, nickname badge, attribution, description, layer badges, and unique technique count.</li>
-      <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Hovering either chip type highlights its drag handle.</li>
-      <li>Shared cells blend campaign colors. For three or more campaigns, two badges and More +N appear. Expand all or Collapse all updates every overlapping cell, while individual cells remain manually adjustable.</li>
+      <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Layers initially appear as <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, then other names, with alphabetical ordering inside each group. Newly available layers enter their default group position and can be reordered manually. Hovering either chip type highlights its drag handle.</li>
+      <li>Shared cells blend campaign colors. All campaign badges are expanded on initial load. Collapse all reduces cells with three or more campaigns to two badges and More +N; Expand all and Collapse all update every overlapping cell while individual cells remain manually adjustable.</li>
+      <li>A single borderless status control beside each campaign badge is visually distinct from the badge. Clicking always opens the same layer-aware popover for both single-layer and multi-layer use, showing status and comments for each layer. Individual changes save separately, while bulk actions state the affected layer count and require confirmation. Differing layer states appear as <code>Mixed</code>, an aggregate display never stored in JSON. Matrix cells do not show a separate note marker.</li>
+      <li>Use the Seen and Unseen checkboxes beside the campaign badge tools to filter campaign usage by progress. Both are selected by default; clearing both removes campaign highlights, while ATT&amp;CK reference cells may remain according to the Show unused settings.</li>
       <li>Consistent branch lines across matrix, tactic, and technique views plus SUB labels identify sub-techniques. Parents of used children remain as context but are not automatically highlighted.</li>
-      <li>Hide unused tactics, techniques, or sub-techniques and manually collapse each parent's children.</li>
-      <li>Scale from 0–100% in 1% steps or fit all visible columns.</li>
-      <li>Search by T-code or name using an outline distinct from campaign colors.</li>
+      <li>On initial load, unused tactics remain visible while unused techniques and sub-techniques are hidden. Each category can then be shown or hidden independently, and each parent's children can be collapsed manually.</li>
+      <li>Fit all visible columns runs automatically on initial load. You can then scale from 0–100% in 1% steps or run the fit action again.</li>
+      <li>Search by T-code or name using an outline distinct from campaign colors. When a query is present, use the <code>×</code> button at the right of the field to clear the query and its highlighting at once.</li>
       <li>Hover tactics and techniques for summaries; click to open internal details and MITRE source links in a new tab.</li>
       <li>PNG export reflects current filters, search, visibility, collapse, badges, and scale. SVG export is disabled.</li>
     </ul>

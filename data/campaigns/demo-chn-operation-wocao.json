@@ -6,61 +6,156 @@
     "China-linked APT20"
   ],
   "description": "Demo scenario inspired by publicly documented Operation Wocao espionage activity. It condenses and enriches reported tradecraft into logical layers for visualization and is not an authoritative incident reconstruction.",
-  "color": "#f43f5e",
+  "color": "#f97316",
   "layers": [
     {
-      "name": "Adversary Infrastructure",
-      "description": "Research privileged targets, acquire servers and email accounts, and prepare public tooling for multi-hop operations.",
+      "name": "EXT-INFRA",
+      "description": "External adversary infrastructure layer for target research, acquired servers and accounts, public tooling, and multi-hop operations.",
       "techniques": [
-        "T1589",
-        "T1583.004",
-        "T1585.002",
-        "T1588.002",
-        "T1090.003"
+        {
+          "id": "T1589",
+          "status": "seen"
+        },
+        {
+          "id": "T1583.004",
+          "status": "seen"
+        },
+        {
+          "id": "T1585.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1588.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1090.003",
+          "status": "seen"
+        }
       ]
     },
     {
-      "name": "External Services",
-      "description": "Exploit public-facing JBoss servers or use stolen VPN access, then maintain web-based or proxied access.",
+      "name": "DMZ-REMOTE",
+      "description": "Perimeter remote-access layer covering exposed application services, stolen VPN access, and web-based or proxied connectivity.",
       "techniques": [
-        "T1190",
-        "T1133",
-        "T1071.001",
-        "T1090.001",
-        "T1571"
+        {
+          "id": "T1190",
+          "status": "seen"
+        },
+        {
+          "id": "T1133",
+          "status": "seen"
+        },
+        {
+          "id": "T1071.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1090.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1571",
+          "status": "seen",
+          "comment": "Non-standard protocol use is marked seen; protocol details remain useful analyst context."
+        }
       ]
     },
     {
-      "name": "Privileged Endpoint",
-      "description": "Execute multiple scripting languages, capture credentials and MFA material, inject into processes, and evade host controls.",
+      "name": "INT-ENDPOINT",
+      "description": "Internal privileged endpoint layer for script execution, credential and MFA capture, process injection, and host-control evasion.",
       "techniques": [
-        "T1059.001",
-        "T1059.003",
-        "T1059.005",
-        "T1059.006",
-        "T1003.001",
-        "T1555.005",
-        "T1056.001",
-        "T1111",
-        "T1055",
-        "T1027.010"
+        {
+          "id": "T1059.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1059.003",
+          "status": "seen"
+        },
+        {
+          "id": "T1059.005",
+          "status": "seen"
+        },
+        {
+          "id": "T1059.006",
+          "status": "seen"
+        },
+        {
+          "id": "T1003.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1555.005",
+          "status": "seen"
+        },
+        {
+          "id": "T1056.001",
+          "status": "unseen"
+        },
+        {
+          "id": "T1111",
+          "status": "seen"
+        },
+        {
+          "id": "T1055",
+          "status": "seen"
+        },
+        {
+          "id": "T1027.010",
+          "status": "seen"
+        }
       ]
     },
     {
-      "name": "Enterprise Network",
-      "description": "Discover accounts, services, shares, and storage; move tools laterally; automate collection; and remove operational traces.",
+      "name": "INT-NETWORK",
+      "description": "Internal network layer for discovering accounts, services, shares, and storage, moving tools, collecting data, and removing traces.",
       "techniques": [
-        "T1087.002",
-        "T1046",
-        "T1135",
-        "T1680",
-        "T1570",
-        "T1003.006",
-        "T1119",
-        "T1115",
-        "T1560.001",
-        "T1041",
-        "T1070.004"
+        {
+          "id": "T1087.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1046",
+          "status": "seen"
+        },
+        {
+          "id": "T1135",
+          "status": "seen"
+        },
+        {
+          "id": "T1680",
+          "status": "seen"
+        },
+        {
+          "id": "T1570",
+          "status": "seen"
+        },
+        {
+          "id": "T1003.006",
+          "status": "seen"
+        },
+        {
+          "id": "T1119",
+          "status": "seen"
+        },
+        {
+          "id": "T1115",
+          "status": "seen"
+        },
+        {
+          "id": "T1560.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1041",
+          "status": "seen"
+        },
+        {
+          "id": "T1070.004",
+          "status": "seen",
+          "comment": "File deletion activity is marked seen after collection and staging in this demo."
+        }
       ]
     }
   ]

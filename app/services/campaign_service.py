@@ -57,7 +57,7 @@ class CampaignService:
             errors = [f"{'.'.join(str(x) for x in item['loc'])}: {item['msg']}" for item in exc.errors()]
             return CampaignRecord(filename=path.name, status="invalid", errors=errors)
 
-        unknown = sorted({tid for layer in campaign.layers for tid in layer.techniques if not self.attack.has_technique(tid)})
+        unknown = sorted({item.id for layer in campaign.layers for item in layer.techniques if not self.attack.has_technique(item.id)})
         warnings = [f"Unknown technique {tid}" for tid in unknown]
         return CampaignRecord(
             filename=path.name, status="warning" if warnings else "valid", campaign=campaign,
@@ -81,7 +81,7 @@ class CampaignService:
         for record in self.valid_records():
             matches: dict[str, list] = {}
             for layer in record.campaign.layers:
-                for technique_id in set(layer.techniques) & technique_ids:
+                for technique_id in {item.id for item in layer.techniques} & technique_ids:
                     matches.setdefault(technique_id, []).append(layer)
             for technique_id, layers in matches.items():
                 usage[technique_id].append({"record": record, "layers": layers})
@@ -97,7 +97,7 @@ class CampaignService:
         path = self._path(filename)
         if path.exists() and not overwrite:
             raise FileExistsError(filename)
-        unknown = sorted({tid for layer in campaign.layers for tid in layer.techniques if not self.attack.has_technique(tid)})
+        unknown = sorted({item.id for layer in campaign.layers for item in layer.techniques if not self.attack.has_technique(item.id)})
         if unknown:
             raise ValueError(f"Unknown ATT&CK technique IDs: {', '.join(unknown)}")
         payload = json.dumps(campaign.model_dump(exclude_none=True), ensure_ascii=False, indent=2) + "\n"
@@ -130,6 +130,34 @@ class CampaignService:
         if target_path != current_path:
             os.replace(current_path, target_path)
         return target_filename
+
+    def set_technique_status(
+        self, filename: str, technique_id: str, status: str, layer_indexes: list[int]
+    ) -> CampaignRecord:
+        """Update every matching occurrence in the selected logical layers."""
+        record = self.get(filename)
+        if record.status != "valid" or record.campaign is None:
+            raise ValueError("only valid campaigns can be updated")
+        if status not in {"seen", "unseen"}:
+            raise ValueError("status must be seen or unseen")
+        technique_id = technique_id.strip().upper()
+        if not self.attack.has_technique(technique_id):
+            raise ValueError(f"Unknown ATT&CK technique ID: {technique_id}")
+        selected_layers = set(layer_indexes)
+        if any(index >= len(record.campaign.layers) for index in selected_layers):
+            raise ValueError("layer index is outside the campaign")
+        changed = False
+        for index, layer in enumerate(record.campaign.layers):
+            if index not in selected_layers:
+                continue
+            for item in layer.techniques:
+                if item.id == technique_id:
+                    item.status = status
+                    changed = True
+        if not changed:
+            raise ValueError("technique is not present in the selected campaign layers")
+        self.save(record.campaign, filename, overwrite=True)
+        return self.get(filename)
 
     def duplicate(self, filename: str) -> str:
         record = self.get(filename)

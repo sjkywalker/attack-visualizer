@@ -9,49 +9,117 @@
   "color": "#6366f1",
   "layers": [
     {
-      "name": "Supply-Chain Targeting",
-      "description": "Research victim software environments and prepare a compromised software distribution path capable of reaching many organizations.",
+      "name": "EXT-PARTNER",
+      "description": "External partner and supply-chain layer for researching victim environments and preparing a compromised software distribution path.",
       "techniques": [
-        "T1592.002",
-        "T1591.002",
-        "T1195.002",
-        "T1587.001"
+        {
+          "id": "T1592.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1591.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1195.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1587.001",
+          "status": "seen"
+        }
       ]
     },
     {
-      "name": "Initial Endpoint",
-      "description": "Execute the staged payload, inspect host defenses and files, and prepare credentials and reboot behavior for propagation.",
+      "name": "INT-ENDPOINT",
+      "description": "Internal endpoint layer where the staged payload executes, host defenses and files are inspected, and credentials and reboot behavior are prepared.",
       "techniques": [
-        "T1218.011",
-        "T1083",
-        "T1518.001",
-        "T1003.001",
-        "T1053.005",
-        "T1036"
+        {
+          "id": "T1218.011",
+          "status": "seen"
+        },
+        {
+          "id": "T1083",
+          "status": "seen"
+        },
+        {
+          "id": "T1518.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1003.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1053.005",
+          "status": "seen"
+        },
+        {
+          "id": "T1036",
+          "status": "seen",
+          "comment": "Payload masquerading is marked seen and retained as analyst context for the endpoint."
+        }
       ]
     },
     {
-      "name": "Enterprise Network",
-      "description": "Spread using SMB exploitation, valid local credentials, administrative shares, WMI, and remote service execution.",
+      "name": "INT-NETWORK",
+      "description": "Internal network layer for propagation using SMB exploitation, valid credentials, administrative shares, WMI, and remote services.",
       "techniques": [
-        "T1210",
-        "T1078.003",
-        "T1021.002",
-        "T1047",
-        "T1569.002",
-        "T1570",
-        "T1018"
+        {
+          "id": "T1210",
+          "status": "unseen"
+        },
+        {
+          "id": "T1078.003",
+          "status": "seen"
+        },
+        {
+          "id": "T1021.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1047",
+          "status": "seen"
+        },
+        {
+          "id": "T1569.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1570",
+          "status": "seen"
+        },
+        {
+          "id": "T1018",
+          "status": "seen"
+        }
       ]
     },
     {
-      "name": "Business Operations",
-      "description": "Clear evidence, encrypt data and disk structures, force reboots, and cause broad loss of availability and productivity.",
+      "name": "INT-OPERATIONS",
+      "description": "Internal business operations layer where evidence clearing, destructive encryption, forced reboots, and availability loss create impact.",
       "techniques": [
-        "T1685.005",
-        "T1486",
-        "T1529",
-        "T1490",
-        "T1489"
+        {
+          "id": "T1685.005",
+          "status": "seen"
+        },
+        {
+          "id": "T1486",
+          "status": "seen"
+        },
+        {
+          "id": "T1529",
+          "status": "seen"
+        },
+        {
+          "id": "T1490",
+          "status": "seen"
+        },
+        {
+          "id": "T1489",
+          "status": "unseen",
+          "comment": "Service stoppage impact has not yet been independently corroborated in this demo."
+        }
       ]
     }
   ]

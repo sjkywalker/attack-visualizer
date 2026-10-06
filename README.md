@@ -18,11 +18,12 @@ files are the source of truth, and no database is required.
 
 - Automatic discovery and web-based creation, editing, renaming, duplication,
   and deletion of `data/campaigns/*.json`
-- Multi-select campaigns and layers with draggable display ordering
+- Multi-select campaigns and layers with grouped `EXT`/`DMZ`/`INT` defaults and draggable display ordering
 - ATT&CK tactic, technique, and sub-technique hierarchy with unused-item filters
 - Campaign color blending, nickname badges, and expandable overlap details
+- Per-T-code seen/unseen progress tracking, dashboard status filters, and analyst comments
 - T-code and technique-name search, hover summaries, and internal detail pages
-- Matrix zoom, fit-to-width, and PNG export reflecting the current view
+- Automatic initial fit-to-width, manual matrix zoom, and PNG export reflecting the current view
 - Graceful isolation and reporting of malformed JSON, schemas, and T-codes
 - English and Korean functional UI and help content
 
@@ -117,11 +118,17 @@ Minimal example:
     {
       "name": "External",
       "description": "Internet-facing activity",
-      "techniques": ["T1595.002", "T1190"]
+      "techniques": [
+        {"id": "T1595.002", "status": "seen"},
+        {"id": "T1190", "status": "unseen", "comment": "Awaiting firewall corroboration."}
+      ]
     },
     {
       "name": "Internal Network",
-      "techniques": ["T1018", "T1059.001"]
+      "techniques": [
+        {"id": "T1018", "status": "seen"},
+        {"id": "T1059.001", "status": "seen", "comment": "Observed in endpoint telemetry."}
+      ]
     }
   ]
 }
@@ -129,7 +136,23 @@ Minimal example:
 
 Store ATT&CK T-codes rather than technique names. A T-code may appear in
 multiple layers, and only explicitly listed codes are highlighted. Listing a
-sub-technique does not automatically highlight its parent.
+sub-technique does not automatically highlight its parent. Each entry has one
+mutually exclusive `seen` or `unseen` status and may include a `comment`.
+Legacy string entries remain readable as `seen` and are normalized when saved
+through the web editor.
+
+On the matrix, every borderless status control opens the same layer-aware editor,
+whether the T-code occurs in one selected layer or several. The editor shows
+layer-specific status and comments, supports individual updates, and requires
+confirmation for explicit bulk actions. Differing states use a `Mixed` aggregate
+indicator. No separate note marker is displayed in the matrix cell.
+
+A layer is a user-defined analytical unit, not an ATT&CK tactic or a prescribed
+network tier. Choose the abstraction level that fits the analysis—for example,
+network zones, individual assets, environments, security domains, or logical
+campaign stages—and use one consistent criterion within a campaign. Array order
+expresses the analyst's intended progression, and the same T-code may occur in
+multiple layers.
 
 ## Main Routes
 
@@ -149,6 +172,14 @@ from sources such as MITRE ATT&CK and CISA, then condensed, combined, or
 enriched for feature demonstration. They are not complete or authoritative
 incident reconstructions and do not represent independent attribution findings
 by this project. See `/disclaimer` for the full explanation.
+
+The demos consistently use `EXT-*`, `DMZ-*`, and `INT-*` layer names to identify
+the trust zone first and one asset or operational tag second. This is a demo
+convention rather than an application validation rule.
+WannaCry deliberately assigns `T1210` different states in `INT-ENDPOINT` and
+`INT-NETWORK` to demonstrate the matrix's multi-layer `Mixed` state. Comments
+appear on both seen and unseen entries and provide analyst context rather than
+determining status.
 
 ## License and Operating Scope
 

@@ -17,11 +17,12 @@ ATT&CK Visualizer는 캠페인 단위 공격 행위를 **MITRE ATT&CK Enterprise
 ## 주요 기능
 
 - `data/campaigns/*.json` 자동 검색과 웹 기반 생성·편집·파일명 변경·복제·삭제
-- 여러 캠페인과 레이어의 동시 선택 및 드래그 표시 순서 조정
+- 여러 캠페인과 레이어의 동시 선택, `EXT`/`DMZ`/`INT` 기본 그룹 정렬 및 드래그 순서 조정
 - ATT&CK 전술·기술·하위 기술 계층 표시와 미사용 항목 숨김
 - 캠페인별 색상 혼합, nickname 배지, 중첩 캠페인 펼치기·접기
+- T-code별 확인됨/미확인 진행 상태, 대시보드 상태 필터와 분석 주석 관리
 - T-code 및 기술 이름 검색, hover 요약, 내부 상세 페이지
-- 확대·축소, 전체 열 맞춤 및 현재 화면 상태를 반영한 PNG 내보내기
+- 최초 전체 열 자동 맞춤, 수동 확대·축소 및 현재 화면 상태를 반영한 PNG 내보내기
 - 잘못된 JSON·스키마·T-code의 안전한 격리와 관리 화면 오류 표시
 - English / 한국어 기능 UI와 도움말
 
@@ -115,11 +116,17 @@ data/attack/enterprise-attack.json MITRE ATT&CK Enterprise STIX 번들
     {
       "name": "External",
       "description": "Internet-facing activity",
-      "techniques": ["T1595.002", "T1190"]
+      "techniques": [
+        {"id": "T1595.002", "status": "seen"},
+        {"id": "T1190", "status": "unseen", "comment": "Awaiting firewall corroboration."}
+      ]
     },
     {
       "name": "Internal Network",
-      "techniques": ["T1018", "T1059.001"]
+      "techniques": [
+        {"id": "T1018", "status": "seen"},
+        {"id": "T1059.001", "status": "seen", "comment": "Observed in endpoint telemetry."}
+      ]
     }
   ]
 }
@@ -127,7 +134,20 @@ data/attack/enterprise-attack.json MITRE ATT&CK Enterprise STIX 번들
 
 기술 이름이 아닌 ATT&CK T-code를 저장합니다. 같은 T-code는 여러 레이어에 나타날
 수 있으며, 명시한 T-code만 강조됩니다. 하위 기술을 입력해도 부모 기술은 자동으로
-강조되지 않습니다.
+강조되지 않습니다. 각 항목은 `seen` 또는 `unseen` 중 하나의 상태를 가지며 선택적으로
+`comment`를 기록할 수 있습니다. 기존 문자열 T-code도 `seen`으로 계속 읽으며 웹
+편집기에서 저장할 때 새 구조로 정규화됩니다.
+
+매트릭스의 테두리 없는 상태 컨트롤은 T-code가 선택된 한 Layer에 있든 여러 Layer에
+있든 항상 같은 Layer별 편집 팝오버를 엽니다. 팝오버에서 Layer별 상태와 주석을
+확인하고 개별 변경할 수 있으며, 명시적 일괄 변경에는 확인 절차가 적용됩니다. 서로
+다른 상태는 `혼합`으로 집계하고 셀에는 별도의 주석 표식을 표시하지 않습니다.
+
+레이어는 ATT&CK 전술이나 정해진 네트워크 계층이 아니라 사용자가 정의하는 분석
+단위입니다. 분석 목적에 따라 네트워크 구역, 단일 자산, 환경, 보안 영역 또는 논리적
+캠페인 단계처럼 원하는 추상화 수준을 선택할 수 있습니다. 한 캠페인 안에서는 하나의
+일관된 구분 기준을 사용하는 것을 권장하며, 배열 순서는 분석자가 의도한 진행 흐름을
+나타냅니다. 같은 T-code는 여러 레이어에 반복해서 나타날 수 있습니다.
 
 ## 주요 경로
 
@@ -146,6 +166,13 @@ data/attack/enterprise-attack.json MITRE ATT&CK Enterprise STIX 번들
 축약·결합·보강한 합성 예시입니다. 실제 사건의 완전하거나 권위 있는 재구성 또는
 프로젝트 자체의 확정적 국가·조직 귀속 판단이 아닙니다. 자세한 내용은
 `/disclaimer`에서 확인하십시오.
+
+데모 Layer는 신뢰 영역을 먼저, 자산·운영 태그 하나를 다음에 표시하는 `EXT-*`,
+`DMZ-*`, `INT-*` 형식을 일관되게 사용합니다. 이는 데모 작성 convention이며
+애플리케이션의 검증 규칙은 아닙니다.
+WannaCry의 `T1210`은 `INT-ENDPOINT`와 `INT-NETWORK`에서 서로 다른 상태를 가져
+다중 Layer `혼합` 표시를 시연합니다. 주석은 확인됨과 미확인 양쪽에 사용되며 상태를
+결정하는 값이 아니라 분석 맥락을 기록합니다.
 
 ## 라이선스와 운영 범위
 

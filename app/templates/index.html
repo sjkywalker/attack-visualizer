@@ -8,7 +8,7 @@
 <section class="control-panel" aria-label="시각화 필터">
   <div class="control-row"><div class="control-label" data-i18n="campaigns">캠페인</div><div id="campaignToggles" class="chips"></div><div class="control-actions"><button id="selectAll" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAll" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
   <div class="control-row"><div class="control-label" data-i18n="layers">레이어</div><div id="layerToggles" class="chips"></div><div class="control-actions"><button id="selectAllLayers" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAllLayers" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
-  <div class="search-row"><label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="T-code 또는 기술 이름 검색" data-i18n-placeholder="search_placeholder" autocomplete="off"></label><span id="searchCount" class="muted"></span><span class="legend"><i></i> <span data-i18n="search_result">검색 결과</span></span></div>
+  <div class="search-row"><div class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="T-code 또는 기술 이름 검색" data-i18n-placeholder="search_placeholder" autocomplete="off" aria-label="T-code 또는 기술 이름 검색"><button id="clearSearch" class="search-clear" type="button" aria-label="검색어 지우기" title="검색어 지우기" hidden>×</button></div><span id="searchCount" class="muted"></span><span class="legend"><i></i> <span data-i18n="search_result">검색 결과</span></span></div>
 </section>
 <section class="matrix-shell">
   <div class="matrix-heading"><div><h2>Enterprise Matrix</h2><p data-i18n="matrix_hint">전술 헤더나 기술을 클릭하면 내부 상세 정보와 캠페인 사용 현황을 볼 수 있습니다.</p></div><div id="loading" class="loading" data-i18n="loading">데이터 불러오는 중…</div></div>
@@ -16,12 +16,16 @@
     <div class="visibility-controls">
       <span class="toolbar-label" data-i18n="show_unused">미사용 항목 표시</span>
       <label class="toggle"><input id="showUnusedTactics" type="checkbox" checked><span data-i18n="tactics">전술</span></label>
-      <label class="toggle"><input id="showUnusedTechniques" type="checkbox" checked><span data-i18n="techniques">기술</span></label>
-      <label class="toggle"><input id="showUnusedSubtechniques" type="checkbox" checked><span data-i18n="subtechniques">하위 기술</span></label>
+      <label class="toggle"><input id="showUnusedTechniques" type="checkbox"><span data-i18n="techniques">기술</span></label>
+      <label class="toggle"><input id="showUnusedSubtechniques" type="checkbox"><span data-i18n="subtechniques">하위 기술</span></label>
       <span class="toolbar-divider" aria-hidden="true"></span>
       <span class="toolbar-label" data-i18n="campaign_badges">캠페인 배지</span>
       <button id="expandAllCampaigns" class="fit-button" type="button" data-i18n="expand_all_campaigns">모두 펼치기</button>
       <button id="collapseAllCampaigns" class="fit-button" type="button" data-i18n="collapse_all_campaigns">모두 접기</button>
+      <span class="toolbar-divider" aria-hidden="true"></span>
+      <span class="toolbar-label" data-i18n="progress_filter">진행 상태</span>
+      <label class="toggle progress-filter seen"><input id="showSeen" type="checkbox" checked><span data-i18n="seen">확인됨</span></label>
+      <label class="toggle progress-filter unseen"><input id="showUnseen" type="checkbox" checked><span data-i18n="unseen">미확인</span></label>
     </div>
     <div class="zoom-controls">
       <span class="toolbar-label" data-i18n="size">크기</span>
@@ -37,5 +41,6 @@
   <div id="matrixViewport" class="matrix-viewport"><div id="matrix" class="matrix" aria-live="polite"></div></div>
 </section>
 <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+<div id="progressPopover" class="progress-popover" role="dialog" aria-modal="false" aria-label="T-code progress" hidden></div>
 {% endblock %}
 {% block scripts %}<script src="{{ url_for('static', path='/js/matrix.js') }}" defer></script>{% endblock %}

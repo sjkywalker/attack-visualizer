@@ -35,6 +35,12 @@
   translations.en.expand_all_campaigns = 'Expand all';
   translations.ko.collapse_all_campaigns = '모두 접기';
   translations.en.collapse_all_campaigns = 'Collapse all';
+  translations.ko.progress_filter = '진행 상태';
+  translations.en.progress_filter = 'Progress';
+  translations.ko.seen = '확인됨';
+  translations.en.seen = 'Seen';
+  translations.ko.unseen = '미확인';
+  translations.en.unseen = 'Unseen';
   let language = localStorage.getItem('attviz-language') || (navigator.language?.toLowerCase().startsWith('ko') ? 'ko' : 'en');
   if (!translations[language]) language = 'en';
   function t(key) { return translations[language][key] || translations.ko[key] || key; }

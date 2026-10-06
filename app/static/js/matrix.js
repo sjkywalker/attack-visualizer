@@ -1,9 +1,9 @@
 (() => {
   const state = {
     campaigns: [], columns: [], selected: new Set(), selectedLayers: new Set(), search: '',
-    showUnusedTactics: true, showUnusedTechniques: true,
-    showUnusedSubtechniques: true, subtechExpanded: new Map(), zoom: 100, layerOrder: [],
-    expandedCampaignBadges: new Set(), campaignOrder: [],
+    showUnusedTactics: true, showUnusedTechniques: false,
+    showUnusedSubtechniques: false, subtechExpanded: new Map(), zoom: 100, layerOrder: [],
+    expandedCampaignBadges: new Set(), campaignOrder: [], progressStatuses: new Set(['seen', 'unseen']),
   };
   const $ = (selector) => document.querySelector(selector);
   const ui = (ko, en) => window.attvizI18n?.language === 'ko' ? ko : en;
@@ -29,6 +29,30 @@
     return state.campaigns.filter(campaign => state.selected.has(campaign.filename));
   }
 
+  const techniqueId = item => typeof item === 'string' ? item : item.id;
+  const techniqueStatus = item => typeof item === 'string' ? 'seen' : item.status;
+
+  function techniqueProgress(campaign, id) {
+    const occurrences = campaign.campaign.layers.flatMap((layer, layerIndex) => state.selectedLayers.has(layer.name)
+      ? layer.techniques.filter(item => techniqueId(item) === id).map(item => ({item, layer: layer.name, layerIndex}))
+      : []);
+    const statuses = new Set(occurrences.map(({item}) => techniqueStatus(item)));
+    const layerStates = [...new Set(occurrences.map(({layerIndex}) => layerIndex))].map(layerIndex => {
+      const matches = occurrences.filter(item => item.layerIndex === layerIndex);
+      const layerStatuses = new Set(matches.map(({item}) => techniqueStatus(item)));
+      return {
+        layerIndex,
+        layer: matches[0].layer,
+        status: layerStatuses.size === 1 ? [...layerStatuses][0] : 'mixed',
+        comments: matches.map(({item}) => typeof item === 'string' ? '' : item.comment || '').filter(Boolean),
+      };
+    });
+    return {
+      status: statuses.size === 1 ? [...statuses][0] : 'mixed',
+      layerStates,
+    };
+  }
+
   function animateChipReorder(container, dragged, target, insertBefore) {
     const chips = [...container.querySelectorAll('.chip[draggable="true"]')];
     const previous = new Map(chips.map(item => [item, item.getBoundingClientRect()]));
@@ -45,16 +69,19 @@
     });
   }
 
-  function campaignsFor(techniqueId) {
+  function campaignsFor(id) {
     return activeCampaigns().filter(({ campaign }) => campaign.layers.some(layer =>
-      state.selectedLayers.has(layer.name) && layer.techniques.includes(techniqueId)));
+      state.selectedLayers.has(layer.name) && layer.techniques.some(item =>
+        techniqueId(item) === id && state.progressStatuses.has(techniqueStatus(item)))));
   }
 
   function usage() {
     const explicit = new Set();
     activeCampaigns().forEach(({ campaign }) => campaign.layers.forEach(layer => {
       if (state.selectedLayers.has(layer.name)) {
-        layer.techniques.forEach(id => explicit.add(id));
+        layer.techniques.forEach(item => {
+          if (state.progressStatuses.has(techniqueStatus(item))) explicit.add(techniqueId(item));
+        });
       }
     }));
 
@@ -81,7 +108,7 @@
     state.campaigns.sort((a, b) => state.campaignOrder.indexOf(a.filename) - state.campaignOrder.indexOf(b.filename));
     box.innerHTML = state.campaigns.length ? state.campaigns.map(campaign => {
       const label = campaign.campaign.nickname || campaign.campaign.name;
-      const techniqueCount = new Set(campaign.campaign.layers.flatMap(layer => layer.techniques)).size;
+      const techniqueCount = new Set(campaign.campaign.layers.flatMap(layer => layer.techniques.map(techniqueId))).size;
       const tooltip = esc(JSON.stringify({
         kind: 'campaign', nickname: label, name: campaign.campaign.name,
         attribution: campaign.campaign.attribution_candidates || [], color: campaign.assigned_color,
@@ -183,14 +210,25 @@
     });
   }
 
+  function compareLayerNames(left, right) {
+    const group = name => name.startsWith('EXT-') ? 0 : name.startsWith('DMZ-') ? 1 : name.startsWith('INT-') ? 2 : 3;
+    return group(left) - group(right) || left.localeCompare(right, undefined, {sensitivity: 'base'});
+  }
+
   function availableLayerNames() {
-    return [...new Set(activeCampaigns().flatMap(item => item.campaign.layers.map(layer => layer.name)))];
+    return [...new Set(activeCampaigns().flatMap(item => item.campaign.layers.map(layer => layer.name)))]
+      .sort(compareLayerNames);
   }
 
   function orderedLayerNames() {
     const available = availableLayerNames();
     state.layerOrder = state.layerOrder.filter(name => available.includes(name));
-    available.forEach(name => { if (!state.layerOrder.includes(name)) state.layerOrder.push(name); });
+    available.forEach(name => {
+      if (state.layerOrder.includes(name)) return;
+      const nextIndex = state.layerOrder.findIndex(existing => compareLayerNames(name, existing) < 0);
+      if (nextIndex < 0) state.layerOrder.push(name);
+      else state.layerOrder.splice(nextIndex, 0, name);
+    });
     return state.layerOrder;
   }
 
@@ -215,8 +253,13 @@
     const campaignLabel = campaign => campaign.campaign.nickname || campaign.campaign.name;
     const badgesExpanded = state.expandedCampaignBadges.has(technique.id);
     const visibleCampaigns = badgesExpanded ? campaigns : campaigns.slice(0, 2);
-    const badges = visibleCampaigns.map(campaign =>
-      `<span class="badge" style="--badge:${campaign.assigned_color}" title="${esc(campaign.campaign.name)}">${esc(campaignLabel(campaign))}</span>`).join('');
+    const badges = visibleCampaigns.map(campaign => {
+      const progress = techniqueProgress(campaign, technique.id);
+      const statusIcon = progress.status === 'seen' ? '●' : progress.status === 'unseen' ? '○' : '◐';
+      const statusLabel = progress.status === 'seen' ? ui('확인됨', 'Seen') : progress.status === 'unseen' ? ui('미확인', 'Unseen') : ui('혼합', 'Mixed');
+      const actionHint = ui('클릭하면 Layer별 상태와 주석 편집을 엽니다.', 'Click to edit status and comments by layer.');
+      return `<span class="campaign-progress"><span class="badge" style="--badge:${campaign.assigned_color}" title="${esc(campaign.campaign.name)}">${esc(campaignLabel(campaign))}</span><span class="progress-state ${progress.status}" role="button" tabindex="0" data-progress-control data-campaign-file="${esc(campaign.filename)}" data-technique-id="${esc(technique.id)}" title="${esc(`${statusLabel}. ${actionHint}`)}"><span aria-hidden="true">${statusIcon}</span> ${statusLabel}</span></span>`;
+    }).join('');
     const extra = campaigns.length > 2
       ? `<span class="badge more ${badgesExpanded ? 'collapse' : 'expand'}" role="button" tabindex="0" data-badge-toggle="${esc(technique.id)}" aria-expanded="${badgesExpanded}">${badgesExpanded ? ui('접기', 'Collapse') : `${ui('더보기', 'More')} +${campaigns.length - 2}`}</span>` : '';
     const tactics = technique.tactics.map(name => name.replaceAll('-', ' ').replace(/\b\w/g, char => char.toUpperCase())).join(', ');
@@ -252,6 +295,15 @@
     parentIds().forEach(id => state.subtechExpanded.set(id, expanded));
   }
 
+  function syncSearchClear() {
+    const button = $('#clearSearch');
+    button.hidden = state.search.length === 0;
+    const label = ui('검색어 지우기', 'Clear search');
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    $('#searchInput').setAttribute('aria-label', ui('T-code 또는 기술 이름 검색', 'Search T-code or technique name'));
+  }
+
   function renderMatrix() {
     const { explicit, effective } = usage();
     const query = state.search.trim().toLowerCase();
@@ -278,7 +330,77 @@
     bindTooltips();
     bindSubtechniqueToggles();
     bindBadgeToggles();
+    bindProgressToggles();
     syncSubtechniqueCheckbox();
+  }
+
+  function bindProgressToggles() {
+    document.querySelectorAll('[data-progress-control]').forEach(button => {
+      const activate = async event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const campaign = state.campaigns.find(item => item.filename === button.dataset.campaignFile);
+        if (!campaign) return;
+        openProgressPopover(campaign, button.dataset.techniqueId, button);
+      };
+      button.onclick = activate;
+      button.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') activate(event); };
+    });
+  }
+
+  async function saveProgress(campaign, techniqueIdValue, status, layerIndexes, busyElement = null) {
+    busyElement?.setAttribute('aria-busy', 'true');
+    try {
+      const response = await fetch(`/api/campaigns/${encodeURIComponent(campaign.filename)}/techniques/${encodeURIComponent(techniqueIdValue)}`, {
+        method: 'PATCH', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status, layer_indexes: layerIndexes}),
+      });
+      if (!response.ok) { const detail = await response.json(); throw new Error(detail.detail || response.statusText); }
+      const updated = await response.json();
+      const index = state.campaigns.findIndex(item => item.filename === campaign.filename);
+      state.campaigns[index] = updated;
+      closeProgressPopover();
+      renderMatrix();
+    } catch (error) {
+      alert(`${ui('진행 상태를 저장하지 못했습니다.', 'Unable to save progress.')} ${error.message}`);
+      busyElement?.removeAttribute('aria-busy');
+    }
+  }
+
+  function closeProgressPopover() {
+    const popover = $('#progressPopover');
+    popover.hidden = true;
+    popover.innerHTML = '';
+  }
+
+  function openProgressPopover(campaign, techniqueIdValue, anchor) {
+    const progress = techniqueProgress(campaign, techniqueIdValue);
+    const popover = $('#progressPopover');
+    const label = campaign.campaign.nickname || campaign.campaign.name;
+    const rows = progress.layerStates.map(layer => {
+      const comments = layer.comments.length ? `<p>${layer.comments.map(esc).join('<br>')}</p>` : '';
+      return `<div class="progress-layer-row"><div><strong>${esc(layer.layer)}</strong>${comments}</div><div class="progress-layer-actions" role="group" aria-label="${esc(`${layer.layer} ${ui('진행 상태', 'progress')}`)}"><button type="button" class="${layer.status === 'seen' ? 'active seen' : ''}" data-layer-status="seen" data-layer-index="${layer.layerIndex}">● ${ui('확인됨', 'Seen')}</button><button type="button" class="${layer.status === 'unseen' ? 'active unseen' : ''}" data-layer-status="unseen" data-layer-index="${layer.layerIndex}">○ ${ui('미확인', 'Unseen')}</button></div></div>`;
+    }).join('');
+    popover.innerHTML = `<div class="progress-popover-head"><div><small>${esc(techniqueIdValue)}</small><strong>${esc(label)}</strong></div><button type="button" data-progress-close aria-label="${ui('닫기', 'Close')}">×</button></div><div class="progress-layer-list">${rows}</div><div class="progress-bulk"><span>${ui('선택된 Layer 일괄 변경', 'Change all selected layers')}</span><button type="button" data-bulk-status="seen">● ${ui('모두 확인됨', 'All seen')}</button><button type="button" data-bulk-status="unseen">○ ${ui('모두 미확인', 'All unseen')}</button></div>`;
+    popover.hidden = false;
+    const anchorRect = anchor.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    popover.style.left = `${Math.max(8, Math.min(window.innerWidth - popoverRect.width - 8, anchorRect.left))}px`;
+    popover.style.top = `${Math.max(8, Math.min(window.innerHeight - popoverRect.height - 8, anchorRect.bottom + 6))}px`;
+    popover.querySelector('[data-progress-close]').onclick = closeProgressPopover;
+    popover.querySelectorAll('[data-layer-status]').forEach(button => button.onclick = () => {
+      if (button.classList.contains('active')) return;
+      saveProgress(campaign, techniqueIdValue, button.dataset.layerStatus, [Number(button.dataset.layerIndex)], button);
+    });
+    popover.querySelectorAll('[data-bulk-status]').forEach(button => button.onclick = () => {
+      const status = button.dataset.bulkStatus;
+      const message = ui(
+        `선택된 ${progress.layerStates.length}개 Layer의 ${techniqueIdValue} 상태를 모두 ${status === 'seen' ? '확인됨' : '미확인'}으로 변경할까요?`,
+        `Change ${techniqueIdValue} to ${status} in all ${progress.layerStates.length} selected layers?`,
+      );
+      if (confirm(message)) saveProgress(campaign, techniqueIdValue, status, progress.layerStates.map(layer => layer.layerIndex), button);
+    });
+    popover.querySelector('button')?.focus();
   }
 
   function bindBadgeToggles() {
@@ -541,8 +663,12 @@
         context.stroke();
         context.restore();
       });
-      matrix.querySelectorAll('.tactic-title strong, .tactic-title small, .tid, .tname, .ancestor-note, .subtech-label, .subtech-toggle span, .badge')
-        .forEach(element => drawText(element, element.classList.contains('tid') ? element.childNodes[0]?.textContent.trim() : element.textContent.trim(), element.classList.contains('badge')));
+      matrix.querySelectorAll('.tactic-title strong, .tactic-title small, .tid, .tname, .ancestor-note, .subtech-label, .subtech-toggle span, .badge, .progress-state')
+        .forEach(element => drawText(
+          element,
+          element.classList.contains('tid') ? element.childNodes[0]?.textContent.trim() : element.textContent.trim(),
+          element.classList.contains('badge') || element.classList.contains('progress-state'),
+        ));
 
       const png = await new Promise((resolve, reject) => canvas.toBlob(
         blob => blob ? resolve(blob) : reject(new Error('Unable to encode PNG')), 'image/png', 1,
@@ -561,10 +687,13 @@
   $('#clearAll').onclick = () => { state.selected.clear(); state.selectedLayers.clear(); update(); };
   $('#selectAllLayers').onclick = () => { selectAllAvailableLayers(); update(false); };
   $('#clearAllLayers').onclick = () => { state.selectedLayers.clear(); update(false); };
-  $('#searchInput').oninput = event => { state.search = event.target.value; renderMatrix(); };
+  $('#searchInput').oninput = event => { state.search = event.target.value; syncSearchClear(); renderMatrix(); };
+  $('#clearSearch').onclick = () => { state.search = ''; $('#searchInput').value = ''; syncSearchClear(); renderMatrix(); $('#searchInput').focus(); };
   $('#showUnusedTactics').onchange = event => { state.showUnusedTactics = event.target.checked; renderMatrix(); };
   $('#showUnusedTechniques').onchange = event => { state.showUnusedTechniques = event.target.checked; renderMatrix(); };
   $('#showUnusedSubtechniques').onchange = event => { setAllSubtechniques(event.target.checked); renderMatrix(); };
+  $('#showSeen').onchange = event => { event.target.checked ? state.progressStatuses.add('seen') : state.progressStatuses.delete('seen'); renderMatrix(); };
+  $('#showUnseen').onchange = event => { event.target.checked ? state.progressStatuses.add('unseen') : state.progressStatuses.delete('unseen'); renderMatrix(); };
   $('#expandAllCampaigns').onclick = expandAllCampaignBadges;
   $('#collapseAllCampaigns').onclick = collapseAllCampaignBadges;
   $('#zoomRange').oninput = event => setZoom(Number(event.target.value));
@@ -574,7 +703,12 @@
   $('#zoomIn').onclick = () => setZoom(state.zoom + 1);
   $('#fitMatrix').onclick = fitMatrix;
   $('#exportPng').onclick = exportPng;
-  window.addEventListener('attviz:language-changed', () => update());
+  document.addEventListener('click', event => {
+    const popover = $('#progressPopover');
+    if (!popover.hidden && !popover.contains(event.target) && !event.target.closest('[data-progress-control]')) closeProgressPopover();
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeProgressPopover(); });
+  window.addEventListener('attviz:language-changed', () => { closeProgressPopover(); syncSearchClear(); update(); });
 
   Promise.all([
     fetch('/api/campaigns').then(response => response.json()),
@@ -583,12 +717,14 @@
     state.campaigns = campaigns.filter(campaign => campaign.status === 'valid')
       .sort((a, b) => a.filename.localeCompare(b.filename, undefined, {sensitivity: 'base'}));
     state.columns = matrix.columns;
-    parentIds().forEach(id => state.subtechExpanded.set(id, true));
+    parentIds().forEach(id => state.subtechExpanded.set(id, false));
     state.campaigns.forEach(campaign => state.selected.add(campaign.filename));
     selectAllAvailableLayers();
+    state.columns.forEach(column => column.techniques.forEach(technique => state.expandedCampaignBadges.add(technique.id)));
     $('#loading').hidden = true;
+    syncSearchClear();
     update();
-    setZoom(100);
+    window.requestAnimationFrame(fitMatrix);
   }).catch(error => {
     $('#loading').textContent = ui('데이터를 불러오지 못했습니다.', 'Unable to load data.');
     console.error(error);
