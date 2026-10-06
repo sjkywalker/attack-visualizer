@@ -167,12 +167,11 @@ class CampaignService:
         copy.name = f"{copy.name} Copy"
         if copy.nickname:
             copy.nickname = f"{copy.nickname[:35]} Copy"
-        base = self.slugify(copy.name).removesuffix(".json")
-        candidate = f"{base}.json"
-        number = 2
+        base = Path(filename).stem
+        candidate = f"{base}-copy.json"
         while (self.directory / candidate).exists():
-            candidate = f"{base}-{number}.json"
-            number += 1
+            base = f"{base}-copy"
+            candidate = f"{base}.json"
         return self.save(copy, candidate)
 
     def delete(self, filename: str) -> None:

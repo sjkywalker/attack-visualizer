@@ -476,7 +476,7 @@
   }
 
   function setZoom(value) {
-    state.zoom = Math.max(0, Math.min(100, Math.round(value)));
+    state.zoom = Math.max(1, Math.min(200, Math.round(value)));
     $('#zoomRange').value = state.zoom;
     $('#zoomInput').value = state.zoom;
     $('#matrix').style.setProperty('--matrix-zoom', state.zoom / 100);
@@ -698,9 +698,10 @@
   $('#collapseAllCampaigns').onclick = collapseAllCampaignBadges;
   $('#zoomRange').oninput = event => setZoom(Number(event.target.value));
   $('#zoomInput').oninput = event => { if (event.target.value !== '') setZoom(Number(event.target.value)); };
-  $('#zoomInput').onchange = event => setZoom(Number(event.target.value || 0));
+  $('#zoomInput').onchange = event => setZoom(Number(event.target.value || 1));
   $('#zoomOut').onclick = () => setZoom(state.zoom - 1);
   $('#zoomIn').onclick = () => setZoom(state.zoom + 1);
+  $('#zoomReset').onclick = () => setZoom(100);
   $('#fitMatrix').onclick = fitMatrix;
   $('#exportPng').onclick = exportPng;
   document.addEventListener('click', event => {
