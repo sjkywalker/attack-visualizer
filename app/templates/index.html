@@ -39,9 +39,12 @@
       <button id="exportMatrix" class="fit-button" type="button" data-i18n="export_matrix" hidden disabled>SVG 내보내기</button>
     </div>
   </div>
+  <div id="matrixHeaderViewport" class="matrix-header-viewport"><div id="matrixHeader" class="matrix-header"></div></div>
   <div id="matrixViewport" class="matrix-viewport"><div id="matrix" class="matrix" aria-live="polite"></div></div>
+  <div id="matrixResizeHandle" class="matrix-resize-handle" role="separator" aria-orientation="horizontal" aria-valuemin="220" tabindex="0" title="드래그하여 높이 조절, 더블클릭하여 최소/최대 높이 전환" aria-label="매트릭스 표시 영역 높이 조절" data-i18n-title="resize_matrix_hint" data-i18n-aria-label="resize_matrix"><span aria-hidden="true"></span></div>
 </section>
 <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 <div id="progressPopover" class="progress-popover" role="dialog" aria-modal="false" aria-label="T-code progress" hidden></div>
+<div id="matrixAutoPanIndicator" class="auto-pan-indicator" aria-hidden="true" hidden><span class="up">▲</span><span class="left">◀</span><i></i><span class="right">▶</span><span class="down">▼</span></div>
 {% endblock %}
 {% block scripts %}<script src="{{ url_for('static', path='/js/matrix.js') }}" defer></script>{% endblock %}

@@ -58,7 +58,7 @@
   accent-color: var(--cyan);
 }
 
-.zoom-input-wrap{display:flex;grid-template-columns:none;align-items:center;gap:3px;color:#cfe0ea}.zoom-input-wrap input{width:54px;height:28px;padding:3px 5px;text-align:right;font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace}.zoom-input-wrap span{font-size:11px}
+.zoom-input-wrap{display:flex;grid-template-columns:none;align-items:center;gap:3px;color:#cfe0ea}.zoom-input-wrap input{width:54px;height:28px;padding:3px 5px 3px 7px;text-align:left;font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace}.zoom-input-wrap span{font-size:11px}
 
 .zoom-button,
 .fit-button {
@@ -128,29 +128,52 @@
 .tip-layer-list { display: flex; flex-wrap: wrap; gap: 4px; }
 .tip-layer-badge { display: inline-block; padding: 1px 5px; border: 1px solid #315066; border-radius: 3px; background: #10202d; color: #bad0dd; font-size: 9px; line-height: 1.45; }
 
-.matrix-viewport {
-  overflow: auto;
-  background: #0b1620;
-}
-
-.matrix {
+.matrix-header-viewport { overflow: hidden; background: #102232; }
+.matrix-header,.matrix {
+  display: grid;
   width: max-content;
   min-width: 100%;
-  overflow: visible;
+  grid-auto-flow: column;
   grid-auto-columns: 150px;
-  zoom: var(--matrix-zoom, 1);
+  zoom: var(--matrix-zoom,1);
+}
+.matrix-header { align-items: stretch; }
+.matrix-header .tactic-title { position: relative; top: auto; height: 84px; }
+.matrix-viewport {
+  height: 360px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: #0b1620;
+}
+.matrix-viewport.is-panning,
+.matrix-viewport.is-panning * { cursor: grabbing !important; user-select: none; }
+.matrix-viewport.is-auto-panning,
+.matrix-viewport.is-auto-panning * { cursor: all-scroll !important; }
+.matrix-resize-handle { display: grid; place-items: center; height: 14px; border-top: 1px solid #1b3040; background: #09141e; cursor: ns-resize; touch-action: none; }
+.matrix-resize-handle span { width: 48px; height: 3px; border-radius: 2px; background: #355064; transition: width .12s,background .12s,box-shadow .12s; }
+.matrix-resize-handle:hover span,.matrix-resize-handle:focus-visible span,.matrix-shell.is-resizing .matrix-resize-handle span { width: 64px; background: var(--cyan); box-shadow: 0 0 8px #3ddbd966; }
+.matrix-resize-handle:focus-visible { outline: 1px solid var(--cyan); outline-offset: -1px; }
+.matrix-shell.is-resizing,.matrix-shell.is-resizing * { cursor: ns-resize !important; user-select: none; }
+.auto-pan-indicator { position: fixed; z-index: 90; display: grid; grid-template: 11px 8px 11px / 11px 8px 11px; place-content: center; place-items: center; width: 46px; height: 46px; padding: 0; border: 1px solid #5c8299; border-radius: 50%; transform: translate(-50%,-50%); background: #07121cea; color: #a9dce5; box-shadow: 0 5px 18px #000b,0 0 12px #3ddbd933; pointer-events: none; font-size: 7px; line-height: 1; }
+.auto-pan-indicator[hidden] { display: none; }
+.auto-pan-indicator span { display: grid; place-items: center; width: 100%; height: 100%; }
+.auto-pan-indicator .up { grid-area: 1/2; }.auto-pan-indicator .left { grid-area: 2/1; }.auto-pan-indicator i { grid-area: 2/2; width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 7px var(--cyan); }.auto-pan-indicator .right { grid-area: 2/3; }.auto-pan-indicator .down { grid-area: 3/2; }
+
+.matrix {
+  overflow: visible;
+  align-items: stretch;
 }
 
-/* top:64px caused a blank strip inside the horizontally scrolling matrix. */
 .tactic-title {
-  top: 0;
-  height: 72px;
+  height: 84px;
   padding: 11px 13px;
   box-shadow: 0 5px 10px #050b1166;
   color: inherit;
   text-decoration: none;
   cursor: pointer;
 }
+.tactic-title small + small { margin-top: 2px; }
+.tactic-title small { white-space: nowrap; }
 .tactic-title:hover { background: #163047; border-bottom-color: var(--cyan); }
 
 .technique-list { padding-top: 10px; }
@@ -197,6 +220,8 @@
   z-index: 3;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
   gap: 2px;
   min-width: 27px;
   height: 22px;
@@ -206,8 +231,10 @@
   background: #0a1721;
   color: #8fb2c8;
   cursor: pointer;
+  white-space: nowrap;
   font: 600 9px ui-monospace, SFMono-Regular, Menlo, monospace;
 }
+.subtech-toggle span { display: inline-block; flex: none; line-height: 1; text-align: center; }
 .subtech-toggle:hover { border-color: var(--cyan); color: #fff; }
 .technique.ancestor-context { border-left-color: #587387; background: #12202b; }
 .ancestor-note { display: block; margin-top: 5px; color: #7895a8; font-size: 9px; }

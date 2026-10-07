@@ -313,17 +313,23 @@
       column.techniques.forEach(technique => {
         if (technique.parent_id) childCounts.set(technique.parent_id, (childCounts.get(technique.parent_id) || 0) + 1);
       });
+      const visibleTechniques = column.techniques.filter(technique => visibleTechnique(technique, effective));
       return {
         ...column, childCounts,
-        visibleTechniques: column.techniques.filter(technique => visibleTechnique(technique, effective)),
+        visibleTechniques,
+        visibleTechniqueCount: visibleTechniques.filter(technique => !technique.parent_id).length,
+        visibleSubtechniqueCount: visibleTechniques.filter(technique => technique.parent_id).length,
         isUsed: column.techniques.some(technique => effective.has(technique.id)),
       };
     }).filter(column => state.showUnusedTactics || column.isUsed);
 
-    $('#matrix').innerHTML = columns.length ? columns.map(column => {
-      const tacticTip = esc(JSON.stringify({kind: 'tactic', name: column.tactic.name, count: column.visibleTechniques.length, description: stripMd(column.tactic.description)}));
-      return `<section class="tactic-column"><a class="tactic-title" href="/tactics/${encodeURIComponent(column.tactic.short_name)}" target="_blank" rel="noopener noreferrer" data-tip='${tacticTip}'><strong>${esc(column.tactic.name)}</strong><small>${column.visibleTechniques.length} techniques</small></a><div class="technique-list">${column.visibleTechniques.map(technique => renderTechnique(technique, explicit, effective, query, counters, column.childCounts.get(technique.id) || 0)).join('')}</div></section>`;
-    }).join('')
+    $('#matrixHeader').innerHTML = columns.map(column => {
+      const tacticTip = esc(JSON.stringify({kind: 'tactic', name: column.tactic.name, techniqueCount: column.visibleTechniqueCount, subtechniqueCount: column.visibleSubtechniqueCount, description: stripMd(column.tactic.description)}));
+      return `<a class="tactic-title" href="/tactics/${encodeURIComponent(column.tactic.short_name)}" target="_blank" rel="noopener noreferrer" data-tip='${tacticTip}'><strong>${esc(column.tactic.name)}</strong><small>${column.visibleTechniqueCount} ${ui('기술', 'Techniques')}</small><small>${column.visibleSubtechniqueCount} ${ui('하위 기술', 'Sub-techniques')}</small></a>`;
+    }).join('');
+    $('#matrix').innerHTML = columns.length ? columns.map(column =>
+      `<section class="tactic-column"><div class="technique-list">${column.visibleTechniques.map(technique => renderTechnique(technique, explicit, effective, query, counters, column.childCounts.get(technique.id) || 0)).join('')}</div></section>`
+    ).join('')
       : `<div class="matrix-empty">${ui('현재 조건에서 표시할 전술이 없습니다. 캠페인을 선택하거나 미사용 전술 표시를 켜세요.', 'No tactics match the current filters. Select a campaign or show unused tactics.')}</div>`;
     $('#highlightCount').textContent = counters.highlighted;
     $('#searchCount').textContent = query ? ui(`${counters.matches}개 검색 결과`, `${counters.matches} results`) : '';
@@ -350,6 +356,8 @@
 
   async function saveProgress(campaign, techniqueIdValue, status, layerIndexes, busyElement = null) {
     busyElement?.setAttribute('aria-busy', 'true');
+    const currentRect = $('#progressPopover').getBoundingClientRect();
+    const retainedAnchor = {getBoundingClientRect: () => ({left: currentRect.left, bottom: currentRect.top - 6})};
     try {
       const response = await fetch(`/api/campaigns/${encodeURIComponent(campaign.filename)}/techniques/${encodeURIComponent(techniqueIdValue)}`, {
         method: 'PATCH', headers: {'Content-Type': 'application/json'},
@@ -359,8 +367,8 @@
       const updated = await response.json();
       const index = state.campaigns.findIndex(item => item.filename === campaign.filename);
       state.campaigns[index] = updated;
-      closeProgressPopover();
       renderMatrix();
+      openProgressPopover(updated, techniqueIdValue, retainedAnchor, false);
     } catch (error) {
       alert(`${ui('진행 상태를 저장하지 못했습니다.', 'Unable to save progress.')} ${error.message}`);
       busyElement?.removeAttribute('aria-busy');
@@ -373,7 +381,7 @@
     popover.innerHTML = '';
   }
 
-  function openProgressPopover(campaign, techniqueIdValue, anchor) {
+  function openProgressPopover(campaign, techniqueIdValue, anchor, focusFirst = true) {
     const progress = techniqueProgress(campaign, techniqueIdValue);
     const popover = $('#progressPopover');
     const label = campaign.campaign.nickname || campaign.campaign.name;
@@ -400,7 +408,7 @@
       );
       if (confirm(message)) saveProgress(campaign, techniqueIdValue, status, progress.layerStates.map(layer => layer.layerIndex), button);
     });
-    popover.querySelector('button')?.focus();
+    if (focusFirst) popover.querySelector('button')?.focus();
   }
 
   function bindBadgeToggles() {
@@ -450,7 +458,7 @@
       element.onmouseenter = () => {
         const data = JSON.parse(element.dataset.tip);
         if (data.kind === 'tactic') {
-          tip.innerHTML = `<span class="tip-id">TACTIC</span><h3>${esc(data.name)}</h3><dl><dt>${ui('기술', 'Techniques')}</dt><dd>${data.count}</dd></dl><p>${esc(data.description)}</p>`;
+          tip.innerHTML = `<span class="tip-id">TACTIC</span><h3>${esc(data.name)}</h3><dl><dt>${ui('기술', 'Techniques')}</dt><dd>${data.techniqueCount}</dd><dt>${ui('하위 기술', 'Sub-techniques')}</dt><dd>${data.subtechniqueCount}</dd></dl><p>${esc(data.description)}</p>`;
         } else if (data.kind === 'campaign') {
           const attribution = data.attribution.length ? data.attribution.map(esc).join(', ') : ui('지정되지 않음', 'Not specified');
           const layers = data.layers.length
@@ -480,6 +488,7 @@
     $('#zoomRange').value = state.zoom;
     $('#zoomInput').value = state.zoom;
     $('#matrix').style.setProperty('--matrix-zoom', state.zoom / 100);
+    $('#matrixHeader').style.setProperty('--matrix-zoom', state.zoom / 100);
   }
 
   function fitMatrix() {
@@ -488,6 +497,156 @@
     const naturalWidth = visibleColumns * 150;
     setZoom(Math.floor(($('#matrixViewport').clientWidth / naturalWidth) * 100));
     $('#matrixViewport').scrollLeft = 0;
+  }
+
+  function enableMatrixPanning() {
+    const viewport = $('#matrixViewport');
+    const headerViewport = $('#matrixHeaderViewport');
+    const indicator = $('#matrixAutoPanIndicator');
+    let dragPan = null;
+    let autoPan = null;
+    let animationFrame = null;
+    const scrollMatrix = (deltaX, deltaY) => {
+      viewport.scrollLeft += deltaX;
+      viewport.scrollTop += deltaY;
+    };
+    const autoPanVelocity = delta => {
+      const deadZone = 14;
+      const distance = Math.abs(delta);
+      if (distance <= deadZone) return 0;
+      return Math.sign(delta) * Math.min(32, 1 + Math.pow((distance - deadZone) / 18, 1.25));
+    };
+    const stopAutoPan = () => {
+      autoPan = null;
+      indicator.hidden = true;
+      viewport.classList.remove('is-auto-panning');
+      if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    };
+    const autoPanFrame = () => {
+      if (!autoPan) return;
+      scrollMatrix(
+        autoPanVelocity(autoPan.x - autoPan.originX),
+        autoPanVelocity(autoPan.y - autoPan.originY),
+      );
+      animationFrame = requestAnimationFrame(autoPanFrame);
+    };
+    const startAutoPan = event => {
+      autoPan = {originX: event.clientX, originY: event.clientY, x: event.clientX, y: event.clientY};
+      indicator.style.left = `${event.clientX}px`;
+      indicator.style.top = `${event.clientY}px`;
+      indicator.hidden = false;
+      viewport.classList.add('is-auto-panning');
+      animationFrame = requestAnimationFrame(autoPanFrame);
+    };
+    const stopDragPan = event => {
+      if (!dragPan || event.pointerId !== dragPan.pointerId) return;
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+      dragPan = null;
+      viewport.classList.remove('is-panning');
+    };
+    viewport.addEventListener('pointerdown', event => {
+      if (event.button === 1) {
+        event.preventDefault();
+        autoPan ? stopAutoPan() : startAutoPan(event);
+        return;
+      }
+      if (event.button !== 2) return;
+      event.preventDefault();
+      stopAutoPan();
+      dragPan = {pointerId: event.pointerId, x: event.clientX, y: event.clientY};
+      viewport.setPointerCapture(event.pointerId);
+      viewport.classList.add('is-panning');
+    });
+    viewport.addEventListener('pointermove', event => {
+      if (!dragPan || event.pointerId !== dragPan.pointerId) return;
+      event.preventDefault();
+      scrollMatrix(dragPan.x - event.clientX, dragPan.y - event.clientY);
+      dragPan.x = event.clientX;
+      dragPan.y = event.clientY;
+    });
+    viewport.addEventListener('pointerup', stopDragPan);
+    viewport.addEventListener('pointercancel', stopDragPan);
+    viewport.addEventListener('lostpointercapture', () => {
+      dragPan = null;
+      viewport.classList.remove('is-panning');
+    });
+    document.addEventListener('pointermove', event => {
+      if (!autoPan) return;
+      autoPan.x = event.clientX;
+      autoPan.y = event.clientY;
+    });
+    document.addEventListener('pointerdown', event => {
+      if (!autoPan || event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      stopAutoPan();
+    }, true);
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') stopAutoPan(); });
+    viewport.addEventListener('contextmenu', event => event.preventDefault());
+    viewport.addEventListener('auxclick', event => { if (event.button === 1) event.preventDefault(); });
+    viewport.addEventListener('scroll', () => { headerViewport.scrollLeft = viewport.scrollLeft; });
+  }
+
+  function enableMatrixResizing() {
+    const viewport = $('#matrixViewport');
+    const handle = $('#matrixResizeHandle');
+    const shell = handle.closest('.matrix-shell');
+    const minimumHeight = 220;
+    let resize = null;
+    let mode = 'default';
+    const defaultHeight = () => Math.max(minimumHeight, Math.round(viewport.clientWidth));
+    const contentHeight = () => Math.max(minimumHeight, Math.ceil($('#matrix').getBoundingClientRect().height));
+    const maximumHeight = () => Math.max(defaultHeight(), contentHeight());
+    const setHeight = (value, nextMode = 'custom') => {
+      const height = Math.max(minimumHeight, Math.min(maximumHeight(), Math.round(value)));
+      viewport.style.height = `${height}px`;
+      mode = nextMode;
+      handle.setAttribute('aria-valuenow', String(height));
+      handle.setAttribute('aria-valuemax', String(maximumHeight()));
+    };
+    const setDefaultHeight = () => setHeight(defaultHeight(), 'default');
+    const setMinimumHeight = () => setHeight(minimumHeight, 'min');
+    const setMaximumHeight = () => setHeight(contentHeight(), 'max');
+    const stop = event => {
+      if (!resize || event.pointerId !== resize.pointerId) return;
+      if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+      resize = null;
+      shell.classList.remove('is-resizing');
+    };
+    handle.setAttribute('aria-valuenow', String(defaultHeight()));
+    handle.setAttribute('aria-valuemax', String(maximumHeight()));
+    handle.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      resize = {pointerId: event.pointerId, originY: event.clientY, originHeight: viewport.getBoundingClientRect().height};
+      handle.setPointerCapture(event.pointerId);
+      shell.classList.add('is-resizing');
+    });
+    handle.addEventListener('pointermove', event => {
+      if (!resize || event.pointerId !== resize.pointerId) return;
+      event.preventDefault();
+      setHeight(resize.originHeight + event.clientY - resize.originY);
+    });
+    handle.addEventListener('pointerup', stop);
+    handle.addEventListener('pointercancel', stop);
+    handle.addEventListener('lostpointercapture', () => {
+      resize = null;
+      shell.classList.remove('is-resizing');
+    });
+    handle.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+      event.preventDefault();
+      setHeight(viewport.getBoundingClientRect().height + (event.key === 'ArrowDown' ? 24 : -24));
+    });
+    handle.addEventListener('dblclick', event => {
+      event.preventDefault();
+      const showingAll = viewport.clientHeight >= contentHeight() - 1;
+      if (mode === 'max' || showingAll) setMinimumHeight();
+      else setMaximumHeight();
+    });
+    window.addEventListener('resize', () => { if (mode === 'default') setDefaultHeight(); });
+    return {setMaximumHeight};
   }
 
   function downloadBlob(blob, extension) {
@@ -516,14 +675,18 @@
 
   function exportPng() {
     return runExport($('#exportPng'), async () => {
+      const header = $('#matrixHeader');
       const matrix = $('#matrix');
       const origin = matrix.getBoundingClientRect();
+      const headerOrigin = header.getBoundingClientRect();
+      const headerHeight = headerOrigin.height;
       const zoom = Math.max(.01, state.zoom / 100);
       const descendants = [...matrix.querySelectorAll('*')];
       const furthestRight = descendants.reduce((value, element) => Math.max(value, element.getBoundingClientRect().right - origin.left), 0);
       const furthestBottom = descendants.reduce((value, element) => Math.max(value, element.getBoundingClientRect().bottom - origin.top), 0);
-      const width = Math.max(1, Math.ceil(matrix.scrollWidth * zoom), Math.ceil(furthestRight));
-      const height = Math.max(1, Math.ceil(matrix.scrollHeight * zoom), Math.ceil(furthestBottom + 16 * zoom));
+      const width = Math.max(1, Math.ceil(matrix.scrollWidth * zoom), Math.ceil(header.scrollWidth * zoom), Math.ceil(furthestRight));
+      const bodyHeight = Math.max(1, Math.ceil(matrix.scrollHeight * zoom), Math.ceil(furthestBottom + 16 * zoom));
+      const height = Math.max(1, Math.ceil(headerHeight + bodyHeight));
       const density = Math.max(.05, Math.min(2, 16384 / width, 16384 / height, Math.sqrt(64000000 / (width * height))));
       const canvas = document.createElement('canvas');
       canvas.width = Math.max(1, Math.floor(width * density));
@@ -536,7 +699,13 @@
 
       const rectOf = element => {
         const rect = element.getBoundingClientRect();
-        return {x: rect.left - origin.left, y: rect.top - origin.top, width: rect.width, height: rect.height};
+        const inHeader = header.contains(element);
+        return {
+          x: rect.left - (inHeader ? headerOrigin.left : origin.left),
+          y: (inHeader ? 0 : headerHeight) + rect.top - (inHeader ? headerOrigin.top : origin.top),
+          width: rect.width,
+          height: rect.height,
+        };
       };
       const roundedRect = (rect, radius = 0) => {
         const r = Math.min(radius, rect.width / 2, rect.height / 2);
@@ -549,6 +718,27 @@
         context.closePath();
       };
       const opacityFor = element => Number(getComputedStyle(element.closest('.technique') || element).opacity || 1);
+      const browserTextLines = element => {
+        const elementRect = element.getBoundingClientRect();
+        const grouped = new Map();
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        let textNode = walker.nextNode();
+        while (textNode) {
+          for (let index = 0; index < textNode.length; index += 1) {
+            const range = document.createRange();
+            range.setStart(textNode, index);
+            range.setEnd(textNode, index + 1);
+            const characterRect = range.getClientRects()[0];
+            if (!characterRect) continue;
+            const lineTop = Math.round(characterRect.top * 2) / 2;
+            const line = grouped.get(lineTop) || {text: '', offset: characterRect.top - elementRect.top};
+            line.text += textNode.data[index];
+            grouped.set(lineTop, line);
+          }
+          textNode = walker.nextNode();
+        }
+        return [...grouped.values()].map(line => ({...line, text: line.text.trim()})).filter(line => line.text);
+      };
       const drawText = (element, text = element.textContent.trim(), singleLine = false) => {
         if (!text) return;
         const rect = rectOf(element);
@@ -559,40 +749,24 @@
         context.globalAlpha = opacityFor(element);
         context.fillStyle = style.color;
         context.font = `${style.fontWeight} ${fontSize}px ${style.fontFamily}`;
-        context.textBaseline = 'top';
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        const domLineCount = new Set([...range.getClientRects()].map(item => Math.round(item.top * 2) / 2)).size;
-        const horizontalPadding = element.classList.contains('badge') ? 4 * zoom : 0;
-        const availableWidth = Math.max(1, rect.width - horizontalPadding * 2);
-        const words = singleLine ? [text] : text.split(/\s+/);
-        const lines = [];
-        let line = '';
-        words.forEach(word => {
-          if (!singleLine && context.measureText(word).width > availableWidth) {
-            if (line) { lines.push(line); line = ''; }
-            let segment = '';
-            [...word].forEach(character => {
-              if (segment && context.measureText(segment + character).width > availableWidth) {
-                lines.push(segment);
-                segment = character;
-              } else segment += character;
-            });
-            line = segment;
-            return;
+        context.textBaseline = singleLine ? 'alphabetic' : 'top';
+        const paddingLeft = (parseFloat(style.paddingLeft) || 0) * zoom;
+        const paddingRight = (parseFloat(style.paddingRight) || 0) * zoom;
+        const inlineLabel = element.classList.contains('tid') ? element.querySelector('.subtech-label') : null;
+        const inlineLabelRect = inlineLabel ? rectOf(inlineLabel) : null;
+        const availableWidth = Math.max(1, inlineLabelRect
+          ? inlineLabelRect.x - rect.x - paddingLeft - 3 * zoom
+          : rect.width - paddingLeft - paddingRight);
+        if (element.classList.contains('tid')) {
+          const measuredWidth = context.measureText(text).width;
+          if (measuredWidth > availableWidth) {
+            context.font = `${style.fontWeight} ${fontSize * availableWidth / measuredWidth}px ${style.fontFamily}`;
           }
-          const candidate = line ? `${line} ${word}` : word;
-          if (!singleLine && line && context.measureText(candidate).width > availableWidth) {
-            lines.push(line);
-            line = word;
-          } else line = candidate;
-        });
-        if (line) lines.push(line);
-        // Render every wrapped Canvas line. domLineCount guards against fractional
-        // browser line boxes, while avoiding a hard height cut prevents lost tails.
-        const visibleLineCount = singleLine ? 1 : Math.max(lines.length, domLineCount, Math.round(rect.height / lineHeight));
-        lines.slice(0, visibleLineCount).forEach((value, index) => {
-          let output = value;
+        }
+        const measuredLines = singleLine ? [{text, offset: 0}] : browserTextLines(element);
+        const lines = measuredLines.length ? measuredLines : [{text, offset: 0}];
+        lines.forEach((line, index) => {
+          let output = line.text;
           const browserEllipsizes = singleLine && style.textOverflow === 'ellipsis'
             && element.scrollWidth > element.clientWidth;
           if (browserEllipsizes) {
@@ -600,8 +774,14 @@
               output = `${output.slice(0, -2)}…`;
             }
           }
-          const centeredY = singleLine ? rect.y + Math.max(0, (rect.height - fontSize) / 2) : rect.y + index * lineHeight;
-          context.fillText(output, rect.x + horizontalPadding, centeredY);
+          let centeredY = rect.y + (line.offset ?? index * lineHeight);
+          if (singleLine) {
+            const metrics = context.measureText(output);
+            const ascent = metrics.actualBoundingBoxAscent || fontSize * .75;
+            const descent = metrics.actualBoundingBoxDescent || fontSize * .25;
+            centeredY = rect.y + rect.height / 2 + (ascent - descent) / 2;
+          }
+          context.fillText(output, rect.x + paddingLeft, centeredY);
         });
         context.restore();
       };
@@ -612,7 +792,7 @@
         context.lineWidth = Math.max(.5, zoom);
         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
       });
-      matrix.querySelectorAll('.tactic-title').forEach(title => {
+      header.querySelectorAll('.tactic-title').forEach(title => {
         const rect = rectOf(title);
         context.fillStyle = '#102232';
         context.fillRect(rect.x, rect.y, rect.width, rect.height);
@@ -643,7 +823,22 @@
         context.lineWidth = technique.classList.contains('search-match') ? Math.max(2, 2 * zoom) : Math.max(.5, zoom);
         context.stroke();
         context.fillStyle = technique.classList.contains('highlighted') ? campaignColor : style.borderLeftColor;
-        context.fillRect(rect.x, rect.y + 4 * zoom, Math.max(2, 3 * zoom), Math.max(0, rect.height - 8 * zoom));
+        roundedRect(rect, 6 * zoom);
+        context.clip();
+        context.fillRect(rect.x, rect.y, Math.max(2, 3 * zoom), rect.height);
+        context.restore();
+      });
+      matrix.querySelectorAll('.subtech-label, .subtech-toggle').forEach(element => {
+        const rect = rectOf(element);
+        const style = getComputedStyle(element);
+        context.save();
+        context.globalAlpha = opacityFor(element);
+        roundedRect(rect, (parseFloat(style.borderRadius) || 3) * zoom);
+        context.fillStyle = style.backgroundColor;
+        context.fill();
+        context.strokeStyle = style.borderColor;
+        context.lineWidth = Math.max(.5, (parseFloat(style.borderWidth) || 1) * zoom);
+        context.stroke();
         context.restore();
       });
       matrix.querySelectorAll('.badge').forEach(badge => {
@@ -663,11 +858,11 @@
         context.stroke();
         context.restore();
       });
-      matrix.querySelectorAll('.tactic-title strong, .tactic-title small, .tid, .tname, .ancestor-note, .subtech-label, .subtech-toggle span, .badge, .progress-state')
+      [...header.querySelectorAll('.tactic-title strong, .tactic-title small'), ...matrix.querySelectorAll('.tid, .tname, .ancestor-note, .subtech-label, .subtech-toggle span, .badge, .progress-state')]
         .forEach(element => drawText(
           element,
           element.classList.contains('tid') ? element.childNodes[0]?.textContent.trim() : element.textContent.trim(),
-          element.classList.contains('badge') || element.classList.contains('progress-state'),
+          element.classList.contains('tid') || element.classList.contains('subtech-label') || element.closest('.subtech-toggle') || element.classList.contains('badge') || element.classList.contains('progress-state'),
         ));
 
       const png = await new Promise((resolve, reject) => canvas.toBlob(
@@ -710,6 +905,8 @@
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closeProgressPopover(); });
   window.addEventListener('attviz:language-changed', () => { closeProgressPopover(); syncSearchClear(); update(); });
+  enableMatrixPanning();
+  const matrixResizer = enableMatrixResizing();
 
   Promise.all([
     fetch('/api/campaigns').then(response => response.json()),
@@ -725,7 +922,10 @@
     $('#loading').hidden = true;
     syncSearchClear();
     update();
-    window.requestAnimationFrame(fitMatrix);
+    window.requestAnimationFrame(() => {
+      fitMatrix();
+      matrixResizer.setMaximumHeight();
+    });
   }).catch(error => {
     $('#loading').textContent = ui('데이터를 불러오지 못했습니다.', 'Unable to load data.');
     console.error(error);

@@ -27,6 +27,10 @@
   translations.en.status_invalid_help = 'The JSON syntax, supported version, required fields, or data types are invalid.';
   translations.ko.reset_zoom = '100% 배율로 복원';
   translations.en.reset_zoom = 'Reset zoom to 100%';
+  translations.ko.resize_matrix = '매트릭스 표시 영역 높이 조절';
+  translations.en.resize_matrix = 'Resize matrix display height';
+  translations.ko.resize_matrix_hint = '드래그하여 높이 조절, 더블클릭하여 최소/최대 높이 전환';
+  translations.en.resize_matrix_hint = 'Drag to resize; double-click to toggle minimum/maximum height';
   translations.ko.nav_disclaimer = '데모 데이터 안내';
   translations.en.nav_disclaimer = 'Demo Disclaimer';
   translations.ko.disclaimer_title = '데모 데이터 안내';

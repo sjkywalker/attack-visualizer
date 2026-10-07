@@ -53,14 +53,18 @@
       <li>캠페인은 파일명순이며 칩에는 nickname을 표시합니다. hover하면 색상 점, 정식 이름, nickname 배지, 귀속 후보, 설명, 레이어 배지와 고유 Techniques 수가 표시됩니다.</li>
       <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. Layer의 기본 표시는 <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, 기타 이름 순이고 각 그룹 안에서는 알파벳순입니다. 새로 등장한 Layer도 해당 그룹 위치에 들어가며 사용자가 드래그해 다시 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되고 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
       <li>여러 캠페인이 공유하는 셀은 색상을 혼합합니다. 최초 로드에서는 모든 캠페인 배지를 펼쳐 표시합니다. 모두 접기를 사용하면 세 개 이상인 셀은 두 배지와 <code>더보기 +N</code>으로 축약되며, 모두 펼치기/모두 접기로 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
-      <li>캠페인 배지 옆에는 배지와 구분되는 테두리 없는 단일 상태 컨트롤이 있습니다. 한 Layer에만 있는 T-code와 여러 Layer에 있는 T-code 모두 클릭하면 같은 Layer별 팝오버가 열리며 상태와 주석을 보여줍니다. 각 Layer는 개별 저장할 수 있고, 모두 변경 작업은 영향받는 Layer 수를 표시하고 확인 후 저장합니다. Layer 상태가 다르면 JSON에는 없는 집계 표시인 <code>혼합</code>으로 나타납니다. 셀에는 별도의 주석 표식을 표시하지 않습니다.</li>
+      <li>캠페인 배지 옆에는 배지와 구분되는 테두리 없는 단일 상태 컨트롤이 있습니다. 한 Layer에만 있는 T-code와 여러 Layer에 있는 T-code 모두 클릭하면 같은 Layer별 팝오버가 열리며 상태와 주석을 보여줍니다. 각 Layer는 개별 저장할 수 있고, 모두 변경 작업은 영향받는 Layer 수를 표시하고 확인 후 저장합니다. 저장 후에도 팝오버가 같은 위치에 열린 상태로 유지되어 연속해서 변경할 수 있습니다. Layer 상태가 다르면 JSON에는 없는 집계 표시인 <code>혼합</code>으로 나타납니다. 셀에는 별도의 주석 표식을 표시하지 않습니다.</li>
       <li>캠페인 배지 도구 옆의 확인됨·미확인 체크박스로 해당 진행 상태의 사용분만 필터링합니다. 둘 다 기본 선택이며, 둘 다 해제하면 캠페인 강조가 사라집니다. ATT&amp;CK 참조 셀은 미사용 항목 표시 설정에 따라 계속 보일 수 있습니다.</li>
-      <li>하위 기술은 메인·전술·기술 화면에서 일관된 branch 연결선과 SUB 표식으로 구분합니다. 사용된 하위 기술의 부모는 문맥상 유지하지만 자동 강조하지 않습니다.</li>
+      <li>하위 기술은 메인·전술·기술 화면에서 일관된 branch 연결선과 SUB 표식으로 구분합니다. 부모 기술의 하위 기술 개수 버튼은 화살표와 숫자를 한 줄 중앙에 표시합니다. 사용된 하위 기술의 부모는 문맥상 유지하지만 자동 강조하지 않습니다.</li>
       <li>최초 로드에서는 미사용 전술만 표시하고 미사용 기술·하위 기술은 숨깁니다. 이후 세 항목을 독립적으로 표시하거나 숨기고, 부모별 하위 기술을 수동 접기/펼치기 할 수 있습니다.</li>
       <li>최초 로드에서는 전체 열 맞춤을 자동 실행합니다. 이후 1–200%를 1% 단위로 조절하고, <code>100%</code> 버튼으로 원래 배율을 복원하거나 전체 열 맞춤을 다시 사용할 수 있습니다.</li>
+      <li>매트릭스 안에서 마우스 가운데 버튼을 한 번 클릭하면 상하좌우 표시가 나타나고, 중심에서 마우스를 움직인 방향과 거리에 따라 자동 이동합니다. 가운데 버튼을 다시 클릭하거나 좌클릭 또는 Esc를 누르면 종료됩니다. 오른쪽 버튼을 누른 채 드래그하는 직접 패닝도 지원합니다. 두 동작 모두 매트릭스 내부만 이동하고 웹페이지는 움직이지 않으며 전술 헤더는 상단에 고정됩니다. 매트릭스 안에서는 컨텍스트 메뉴가 표시되지 않습니다.</li>
+      <li>매트릭스 표시 영역은 최초 로드 시 현재 기술·하위 기술 전체를 볼 수 있는 최대 높이로 설정됩니다. 가장 아래쪽 손잡이를 위아래로 드래그하거나 키보드의 위·아래 화살표로 높이를 조절할 수 있습니다. 손잡이를 더블클릭하면 약 3개 셀을 볼 수 있는 최소 높이와 전체를 볼 수 있는 최대 높이 사이를 전환합니다.</li>
+      <li>전술 헤더는 기술 영역과 분리되어 상단에 고정됩니다. 가로·세로 스크롤바와 패닝은 헤더가 아닌 기술·하위 기술 영역에만 적용되며, 가로 이동 시 헤더 열은 기술 열과 동기화됩니다.</li>
+      <li>각 전술 헤더에는 현재 필터와 접기 상태에서 표시 중인 일반 기술 수와 하위 기술 수가 각각 표시되며, hover 요약에서도 두 값을 확인할 수 있습니다.</li>
       <li>T-code와 기술 이름 검색 결과는 캠페인 색상과 별도의 윤곽선으로 표시합니다. 검색어가 있으면 입력창 오른쪽의 <code>×</code> 버튼으로 검색어와 강조를 한 번에 지울 수 있습니다.</li>
       <li>전술 헤더와 기술을 hover하면 요약을 보고, 클릭하면 새 탭의 내부 상세 페이지와 MITRE 원문 링크를 확인합니다. 기술 상세 화면의 캠페인 카드에는 귀속 후보와 해당 T-code가 사용된 레이어가 각각 표시됩니다.</li>
-      <li>PNG는 현재 필터, 검색, 숨김, 접기, 배지와 배율을 반영합니다. SVG 내보내기는 비활성화되어 있습니다.</li>
+      <li>PNG는 뷰포트 높이와 스크롤 위치에 관계없이 고정 전술 헤더와 전체 기술 영역을 한 장으로 내보냅니다. 기술명은 브라우저에 표시된 실제 줄 구분과 위치를 사용하므로 배지와 겹치지 않으며, 작은 라벨과 배지의 글자도 상하 중앙에 맞춥니다. 현재 필터, 검색, 숨김, 접기, 배지, T-code, SUB 태그·branch, 셀 곡선을 따르는 왼쪽 색상 바와 배율을 반영합니다. SVG 내보내기는 비활성화되어 있습니다.</li>
     </ul>
 
     <h2 id="validation-ko">검증 상태</h2>
@@ -128,14 +132,18 @@
       <li>Campaigns are sorted by filename while chips display nicknames. Hover for the color dot, full name, nickname badge, attribution, description, layer badges, and unique technique count.</li>
       <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Layers initially appear as <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, then other names, with alphabetical ordering inside each group. Newly available layers enter their default group position and can be reordered manually. Hovering either chip type highlights its drag handle.</li>
       <li>Shared cells blend campaign colors. All campaign badges are expanded on initial load. Collapse all reduces cells with three or more campaigns to two badges and More +N; Expand all and Collapse all update every overlapping cell while individual cells remain manually adjustable.</li>
-      <li>A single borderless status control beside each campaign badge is visually distinct from the badge. Clicking always opens the same layer-aware popover for both single-layer and multi-layer use, showing status and comments for each layer. Individual changes save separately, while bulk actions state the affected layer count and require confirmation. Differing layer states appear as <code>Mixed</code>, an aggregate display never stored in JSON. Matrix cells do not show a separate note marker.</li>
+      <li>A single borderless status control beside each campaign badge is visually distinct from the badge. Clicking always opens the same layer-aware popover for both single-layer and multi-layer use, showing status and comments for each layer. Individual changes save separately, while bulk actions state the affected layer count and require confirmation. The popover remains open in place after saving so you can make consecutive changes. Differing layer states appear as <code>Mixed</code>, an aggregate display never stored in JSON. Matrix cells do not show a separate note marker.</li>
       <li>Use the Seen and Unseen checkboxes beside the campaign badge tools to filter campaign usage by progress. Both are selected by default; clearing both removes campaign highlights, while ATT&amp;CK reference cells may remain according to the Show unused settings.</li>
-      <li>Consistent branch lines across matrix, tactic, and technique views plus SUB labels identify sub-techniques. Parents of used children remain as context but are not automatically highlighted.</li>
+      <li>Consistent branch lines across matrix, tactic, and technique views plus SUB labels identify sub-techniques. Parent technique count controls keep their arrow and number centered on one line. Parents of used children remain as context but are not automatically highlighted.</li>
       <li>On initial load, unused tactics remain visible while unused techniques and sub-techniques are hidden. Each category can then be shown or hidden independently, and each parent's children can be collapsed manually.</li>
       <li>Fit all visible columns runs automatically on initial load. You can then scale from 1–200% in 1% steps, use <code>100%</code> to restore the original scale, or run the fit action again.</li>
+      <li>Click the middle mouse button once inside the matrix to show a four-way marker and auto-pan according to the pointer's direction and distance from its center. Click the middle button again, left-click, or press Esc to stop. Direct right-button drag panning is also available. Both interactions move only the matrix—not the webpage—while tactic headers remain fixed at the top. The context menu is suppressed inside the matrix.</li>
+      <li>The matrix display initially uses the maximum height needed for all current techniques and sub-techniques. Drag the bottom handle or use the Up and Down arrow keys while it is focused to resize it. Double-click the handle to toggle between that maximum and a minimum height of roughly three cells.</li>
+      <li>Tactic headers are separated from the technique area and remain fixed above it. Scrollbars and panning apply only to techniques and sub-techniques, while horizontal movement keeps header columns synchronized with technique columns.</li>
+      <li>Each tactic header separately reports the visible technique and sub-technique counts for the current filters and collapse state; the hover summary shows both values as well.</li>
       <li>Search by T-code or name using an outline distinct from campaign colors. When a query is present, use the <code>×</code> button at the right of the field to clear the query and its highlighting at once.</li>
       <li>Hover tactics and techniques for summaries; click to open internal details and MITRE source links in a new tab. Campaign cards on technique detail pages separately label attribution candidates and the layers where that T-code is used.</li>
-      <li>PNG export reflects current filters, search, visibility, collapse, badges, and scale. SVG export is disabled.</li>
+      <li>PNG export ignores viewport height and scroll position, combining the fixed tactic headers and full technique area in one image. Technique names use the browser's actual line breaks and positions so they do not overlap badges, while text in compact labels and badges is vertically centered. The image reflects current filters, search, visibility, collapse, badges, T-codes, SUB labels and branches, curved left-edge cell accents, and scale. SVG export is disabled.</li>
     </ul>
 
     <h2 id="validation-en">Validation Status</h2>
