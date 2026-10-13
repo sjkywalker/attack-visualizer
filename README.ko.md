@@ -2,15 +2,15 @@
 
 [English](README.md) | **한국어**
 
-ATT&CK Visualizer는 캠페인 단위 공격 행위를 **MITRE ATT&CK Enterprise Matrix**에서
+ATT&CK Visualizer는 캠페인 단위 공격 행위를 **MITRE ATT&CK Enterprise·Mobile·ICS Matrix**에서
 비교하는 로컬·오프라인 우선 웹 애플리케이션입니다. 캠페인 JSON 파일을 원본으로
 사용하며 별도 데이터베이스가 필요하지 않습니다.
 
 <p align="center"><img src="demo.ko.png" alt="ATT&amp;CK Visualizer 캠페인 매트릭스 대시보드" width="100%"></p>
-<p align="center"><em>선택한 캠페인과 레이어를 ATT&amp;CK Enterprise Matrix에 표시한 화면입니다.</em></p>
+<p align="center"><em>선택한 캠페인과 레이어를 선택 가능한 ATT&amp;CK 도메인에 표시한 화면입니다.</em></p>
 
 - Python 3.11+ / FastAPI / Jinja2 / Vanilla JavaScript
-- MITRE ATT&CK Enterprise v19.2
+- MITRE ATT&CK Enterprise, Mobile, ICS v19.2
 - Docker 또는 로컬 Python 실행
 - 기본 접속 주소: <http://127.0.0.1:8000> (`.env`의 `ATTVIZ_PORT`로 변경)
 
@@ -18,10 +18,11 @@ ATT&CK Visualizer는 캠페인 단위 공격 행위를 **MITRE ATT&CK Enterprise
 
 - `data/campaigns/*.json` 자동 검색과 웹 기반 생성·편집·파일명 변경·복제·삭제
 - 여러 캠페인과 레이어의 동시 선택, `EXT`/`DMZ`/`INT` 기본 그룹 정렬 및 드래그 순서 조정
+- Enterprise·Mobile·ICS 도메인 동시 선택과 공통 전술·T-code 병합 표시
 - ATT&CK 전술·기술·하위 기술 계층 표시와 미사용 항목 숨김
 - 캠페인별 색상 혼합, nickname 배지, 중첩 캠페인 펼치기·접기
 - T-code별 확인됨/미확인 진행 상태, 대시보드 상태 필터와 분석 주석 관리
-- T-code 및 기술 이름 검색, hover 요약, 내부 상세 페이지
+- T-code 및 기술 이름 검색, hover 요약, 도메인별 내부 상세 탭
 - 최초 전체 열 자동 맞춤, 수동 확대·축소 및 현재 화면 상태를 반영한 PNG 내보내기
 - 잘못된 JSON·스키마·T-code의 안전한 격리와 관리 화면 오류 표시
 - English / 한국어 기능 UI와 도움말
@@ -97,6 +98,8 @@ python -m app.server --reload
 ```text
 data/campaigns/                    사용자 캠페인 JSON
 data/attack/enterprise-attack.json MITRE ATT&CK Enterprise STIX 번들
+data/attack/mobile-attack.json     MITRE ATT&CK Mobile STIX 번들
+data/attack/ics-attack.json        MITRE ATT&CK ICS STIX 번들
 ```
 
 캠페인 파일은 직접 복사·편집하거나 `/campaigns` 화면에서 관리할 수 있습니다.
@@ -170,8 +173,8 @@ data/attack/enterprise-attack.json MITRE ATT&CK Enterprise STIX 번들
 데모 Layer는 신뢰 영역을 먼저, 자산·운영 태그 하나를 다음에 표시하는 `EXT-*`,
 `DMZ-*`, `INT-*` 형식을 일관되게 사용합니다. 이는 데모 작성 convention이며
 애플리케이션의 검증 규칙은 아닙니다.
-WannaCry의 `T1210`은 `INT-ENDPOINT`와 `INT-NETWORK`에서 서로 다른 상태를 가져
-다중 Layer `혼합` 표시를 시연합니다. 주석은 확인됨과 미확인 양쪽에 사용되며 상태를
+Enterprise Web-to-Identity 데모의 `T1071.001`은 `DMZ-WEB`과 `INT-NETWORK`에서
+서로 다른 상태를 가져 다중 Layer `혼합` 표시를 시연합니다. 주석은 확인됨과 미확인 양쪽에 사용되며 상태를
 결정하는 값이 아니라 분석 맥락을 기록합니다.
 
 ## 라이선스와 운영 범위

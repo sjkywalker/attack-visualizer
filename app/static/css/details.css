@@ -1,5 +1,9 @@
 .breadcrumb { display: flex; gap: 9px; margin: 0 0 15px; color: var(--muted); font-size: 12px; }
 .breadcrumb a { color: var(--cyan); text-decoration: none; }
+.domain-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 15px; }
+.domain-tabs a { padding: 6px 11px; border: 1px solid #2b4053; border-radius: 6px; background: #0b1620; color: #9eb1c2; text-decoration: none; font-size: 12px; }
+.domain-tabs a:hover,.domain-tabs a:focus-visible { border-color: #4f718a; color: #fff; }
+.domain-tabs a.active { border-color: var(--cyan); background: #123239; color: #fff; box-shadow: 0 0 12px #3ddbd922; }
 .detail-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 25px 28px; }
 .detail-hero h1 { margin: 3px 0 12px; font-size: 28px; }
 .detail-hero h1 code { color: var(--cyan); font-size: .7em; }

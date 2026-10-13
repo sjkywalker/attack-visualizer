@@ -2,16 +2,17 @@
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/matrix-controls.css') }}">{% endblock %}
 {% block content %}
 <section class="hero compact">
-  <div><p class="eyebrow">CAMPAIGN INTELLIGENCE</p><h1 data-i18n="hero_title">공격 행동을 한눈에 분석하세요</h1><p data-i18n="hero_text">캠페인과 사용자 정의 분석 레이어 전반의 ATT&amp;CK Enterprise 행위를 비교합니다.</p></div>
+  <div><p class="eyebrow">CAMPAIGN INTELLIGENCE</p><h1 data-i18n="hero_title">공격 행동을 한눈에 분석하세요</h1><p data-i18n="hero_text">캠페인과 사용자 정의 분석 레이어 전반의 ATT&amp;CK 행위를 비교합니다.</p></div>
   <div class="stat"><span id="highlightCount">0</span><small data-i18n="highlighted">강조된 기술</small></div>
 </section>
 <section class="control-panel" aria-label="시각화 필터">
+  <div class="control-row"><div class="control-label" data-i18n="domains">도메인</div><div id="domainToggles" class="chips"></div><div class="control-actions"><button id="selectAllDomains" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAllDomains" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
   <div class="control-row"><div class="control-label" data-i18n="campaigns">캠페인</div><div id="campaignToggles" class="chips"></div><div class="control-actions"><button id="selectAll" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAll" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
   <div class="control-row"><div class="control-label" data-i18n="layers">레이어</div><div id="layerToggles" class="chips"></div><div class="control-actions"><button id="selectAllLayers" class="text-button" data-i18n="select_all">전체 선택</button><button id="clearAllLayers" class="text-button" data-i18n="clear_all">모두 해제</button></div></div>
   <div class="search-row"><div class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="T-code 또는 기술 이름 검색" data-i18n-placeholder="search_placeholder" autocomplete="off" aria-label="T-code 또는 기술 이름 검색"><button id="clearSearch" class="search-clear" type="button" aria-label="검색어 지우기" title="검색어 지우기" hidden>×</button></div><span id="searchCount" class="muted"></span><span class="legend"><i></i> <span data-i18n="search_result">검색 결과</span></span></div>
 </section>
 <section class="matrix-shell">
-  <div class="matrix-heading"><div><h2>Enterprise Matrix</h2><p data-i18n="matrix_hint">전술 헤더나 기술을 클릭하면 내부 상세 정보와 캠페인 사용 현황을 볼 수 있습니다.</p></div><div id="loading" class="loading" data-i18n="loading">데이터 불러오는 중…</div></div>
+  <div class="matrix-heading"><div><h2 id="matrixTitle">Enterprise Matrix</h2><p data-i18n="matrix_hint">전술 헤더나 기술을 클릭하면 내부 상세 정보와 캠페인 사용 현황을 볼 수 있습니다.</p></div><div id="loading" class="loading" data-i18n="loading">데이터 불러오는 중…</div></div>
   <div class="matrix-toolbar" aria-label="매트릭스 표시 설정">
     <div class="visibility-controls">
       <span class="toolbar-label" data-i18n="show_unused">미사용 항목 표시</span>

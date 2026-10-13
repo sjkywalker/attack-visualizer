@@ -1,6 +1,7 @@
 (() => {
   const state = {
     campaigns: [], columns: [], selected: new Set(), selectedLayers: new Set(), search: '',
+    domains: [], selectedDomains: new Set(),
     showUnusedTactics: true, showUnusedTechniques: false,
     showUnusedSubtechniques: false, subtechExpanded: new Map(), zoom: 100, layerOrder: [],
     expandedCampaignBadges: new Set(), campaignOrder: [], progressStatuses: new Set(['seen', 'unseen']),
@@ -27,6 +28,53 @@
 
   function activeCampaigns() {
     return state.campaigns.filter(campaign => state.selected.has(campaign.filename));
+  }
+
+  function matrixTitle() {
+    const names = state.domains.filter(domain => state.selectedDomains.has(domain.id)).map(domain => domain.name);
+    return names.length ? `${names.join(' + ')} Matrix` : ui('선택된 도메인 없음', 'No domains selected');
+  }
+
+  const domainNames = ids => (ids || []).map(id =>
+    state.domains.find(domain => domain.id === id)?.name || id.toUpperCase()).join(' · ');
+
+  function renderDomains() {
+    const box = $('#domainToggles');
+    box.innerHTML = state.domains.map(domain =>
+      `<button class="chip domain-filter-chip ${state.selectedDomains.has(domain.id) ? 'active' : ''}" style="--chip-color:#f15a24" data-domain="${esc(domain.id)}">${esc(domain.name)}</button>`
+    ).join('');
+    box.querySelectorAll('button').forEach(button => {
+      button.onclick = async () => {
+        state.selectedDomains.has(button.dataset.domain)
+          ? state.selectedDomains.delete(button.dataset.domain)
+          : state.selectedDomains.add(button.dataset.domain);
+        await loadMatrix();
+      };
+    });
+    $('#matrixTitle').textContent = matrixTitle();
+  }
+
+  async function loadMatrix() {
+    if (!state.selectedDomains.size) {
+      state.columns = [];
+      state.subtechExpanded.clear();
+      renderDomains();
+      update(false);
+      return;
+    }
+    const params = new URLSearchParams();
+    state.selectedDomains.forEach(domain => params.append('domains', domain));
+    const response = await fetch(`/api/attack/matrix?${params}`);
+    if (!response.ok) throw new Error(response.statusText);
+    const matrix = await response.json();
+    state.columns = matrix.columns;
+    state.columns.forEach(column => column.techniques.forEach(technique => state.expandedCampaignBadges.add(technique.id)));
+    parentIds().forEach(id => {
+      if (!state.subtechExpanded.has(id)) state.subtechExpanded.set(id, false);
+    });
+    renderDomains();
+    update(false);
+    window.requestAnimationFrame(() => matrixResizer.setMaximumHeight());
   }
 
   const techniqueId = item => typeof item === 'string' ? item : item.id;
@@ -265,13 +313,15 @@
     const tactics = technique.tactics.map(name => name.replaceAll('-', ' ').replace(/\b\w/g, char => char.toUpperCase())).join(', ');
     const tooltip = esc(JSON.stringify({
       id: technique.id, name: technique.name, tactics,
+      domains: domainNames(technique.domains),
       parent: technique.parent_id ? `${technique.parent_id} ${technique.parent_name}` : '—',
       description: stripMd(technique.description),
     }));
     const expanded = state.subtechExpanded.get(technique.id) ?? state.showUnusedSubtechniques;
     const toggleTitle = ui(`미사용 하위 기술 ${expanded ? '접기' : '펼치기'}`, `${expanded ? 'Collapse' : 'Expand'} unused sub-techniques`);
     const toggle = childCount ? `<button class="subtech-toggle" type="button" data-parent-id="${esc(technique.id)}" aria-expanded="${expanded}" title="${toggleTitle}"><span aria-hidden="true">${expanded ? '▾' : '▸'}</span><span>${childCount}</span></button>` : '';
-    return `<div class="technique-row ${childCount ? 'has-subtechniques' : ''} ${technique.parent_id ? 'is-subtechnique' : ''}"><a class="technique ${technique.parent_id ? 'subtechnique' : ''} ${campaigns.length ? 'highlighted' : ''} ${isAncestorOnly ? 'ancestor-context' : ''} ${query ? (found ? 'search-match' : 'search-dim') : ''}" style="--mix:${mix(campaigns.map(campaign => campaign.assigned_color))}" href="/techniques/${encodeURIComponent(technique.id)}" target="_blank" rel="noopener noreferrer" data-tip='${tooltip}'><span class="tid">${esc(technique.id)}${technique.parent_id ? '<span class="subtech-label">SUB</span>' : ''}</span><span class="tname">${esc(technique.name)}</span>${isAncestorOnly ? `<span class="ancestor-note">${ui('사용된 하위 기술의 상위 항목', 'Parent of a used sub-technique')}</span>` : ''}${campaigns.length ? `<span class="badges">${badges}${extra}</span>` : ''}</a>${toggle}</div>`;
+    const detailDomain = technique.domains?.[0] || 'enterprise';
+    return `<div class="technique-row ${childCount ? 'has-subtechniques' : ''} ${technique.parent_id ? 'is-subtechnique' : ''}"><a class="technique ${technique.parent_id ? 'subtechnique' : ''} ${campaigns.length ? 'highlighted' : ''} ${isAncestorOnly ? 'ancestor-context' : ''} ${query ? (found ? 'search-match' : 'search-dim') : ''}" style="--mix:${mix(campaigns.map(campaign => campaign.assigned_color))}" href="/techniques/${encodeURIComponent(technique.id)}?domain=${encodeURIComponent(detailDomain)}" target="_blank" rel="noopener noreferrer" data-tip='${tooltip}'><span class="tid">${esc(technique.id)}${technique.parent_id ? '<span class="subtech-label">SUB</span>' : ''}</span><span class="tname">${esc(technique.name)}</span>${isAncestorOnly ? `<span class="ancestor-note">${ui('사용된 하위 기술의 상위 항목', 'Parent of a used sub-technique')}</span>` : ''}${campaigns.length ? `<span class="badges">${badges}${extra}</span>` : ''}</a>${toggle}</div>`;
   }
 
   function parentIds() {
@@ -324,8 +374,10 @@
     }).filter(column => state.showUnusedTactics || column.isUsed);
 
     $('#matrixHeader').innerHTML = columns.map(column => {
-      const tacticTip = esc(JSON.stringify({kind: 'tactic', name: column.tactic.name, techniqueCount: column.visibleTechniqueCount, subtechniqueCount: column.visibleSubtechniqueCount, description: stripMd(column.tactic.description)}));
-      return `<a class="tactic-title" href="/tactics/${encodeURIComponent(column.tactic.short_name)}" target="_blank" rel="noopener noreferrer" data-tip='${tacticTip}'><strong>${esc(column.tactic.name)}</strong><small>${column.visibleTechniqueCount} ${ui('기술', 'Techniques')}</small><small>${column.visibleSubtechniqueCount} ${ui('하위 기술', 'Sub-techniques')}</small></a>`;
+      const domains = domainNames(column.tactic.domains);
+      const tacticTip = esc(JSON.stringify({kind: 'tactic', name: column.tactic.name, domains, techniqueCount: column.visibleTechniqueCount, subtechniqueCount: column.visibleSubtechniqueCount, description: stripMd(column.tactic.description)}));
+      const detailDomain = column.tactic.domains?.[0] || 'enterprise';
+      return `<a class="tactic-title" href="/tactics/${encodeURIComponent(column.tactic.short_name)}?domain=${encodeURIComponent(detailDomain)}" target="_blank" rel="noopener noreferrer" data-tip='${tacticTip}'><strong>${esc(column.tactic.name)}</strong><small class="tactic-domains">${esc(domains)}</small><small>${column.visibleTechniqueCount} ${ui('기술', 'Techniques')}</small><small>${column.visibleSubtechniqueCount} ${ui('하위 기술', 'Sub-techniques')}</small></a>`;
     }).join('');
     $('#matrix').innerHTML = columns.length ? columns.map(column =>
       `<section class="tactic-column"><div class="technique-list">${column.visibleTechniques.map(technique => renderTechnique(technique, explicit, effective, query, counters, column.childCounts.get(technique.id) || 0)).join('')}</div></section>`
@@ -458,7 +510,7 @@
       element.onmouseenter = () => {
         const data = JSON.parse(element.dataset.tip);
         if (data.kind === 'tactic') {
-          tip.innerHTML = `<span class="tip-id">TACTIC</span><h3>${esc(data.name)}</h3><dl><dt>${ui('기술', 'Techniques')}</dt><dd>${data.techniqueCount}</dd><dt>${ui('하위 기술', 'Sub-techniques')}</dt><dd>${data.subtechniqueCount}</dd></dl><p>${esc(data.description)}</p>`;
+          tip.innerHTML = `<span class="tip-id">TACTIC</span><h3>${esc(data.name)}</h3><dl><dt>${ui('도메인', 'Domains')}</dt><dd>${esc(data.domains)}</dd><dt>${ui('기술', 'Techniques')}</dt><dd>${data.techniqueCount}</dd><dt>${ui('하위 기술', 'Sub-techniques')}</dt><dd>${data.subtechniqueCount}</dd></dl><p>${esc(data.description)}</p>`;
         } else if (data.kind === 'campaign') {
           const attribution = data.attribution.length ? data.attribution.map(esc).join(', ') : ui('지정되지 않음', 'Not specified');
           const layers = data.layers.length
@@ -467,7 +519,7 @@
           const description = data.description || ui('설명 없음', 'No description');
           tip.innerHTML = `<div class="tip-campaign-kicker"><i style="--tip-campaign-color:${esc(data.color)}"></i><span>${ui('캠페인', 'Campaign')}</span></div><h3>${esc(data.name)}</h3><dl class="tip-campaign-details"><dt>${ui('배지', 'Badge')}</dt><dd><b class="tip-campaign-badge" style="--badge:${esc(data.color)}">${esc(data.nickname)}</b></dd><dt>${ui('귀속 후보', 'Attribution')}</dt><dd>${attribution}</dd><dt>${ui('설명', 'Description')}</dt><dd class="tip-campaign-description">${esc(description)}</dd><dt>${ui('레이어', 'Layers')}</dt><dd class="tip-layer-list">${layers}</dd><dt>${ui('기술', 'Techniques')}</dt><dd>${data.techniqueCount}</dd></dl>`;
         } else {
-          tip.innerHTML = `<span class="tip-id">${esc(data.id)}</span><h3>${esc(data.name)}</h3><dl><dt>${ui('전술', 'Tactic')}</dt><dd>${esc(data.tactics)}</dd><dt>${ui('부모', 'Parent')}</dt><dd>${esc(data.parent)}</dd></dl><p>${esc(data.description)}</p>`;
+          tip.innerHTML = `<span class="tip-id">${esc(data.id)}</span><h3>${esc(data.name)}</h3><dl><dt>${ui('도메인', 'Domains')}</dt><dd>${esc(data.domains)}</dd><dt>${ui('전술', 'Tactic')}</dt><dd>${esc(data.tactics)}</dd><dt>${ui('부모', 'Parent')}</dt><dd>${esc(data.parent)}</dd></dl><p>${esc(data.description)}</p>`;
         }
         tip.hidden = false;
       };
@@ -879,6 +931,14 @@
   }
 
   $('#selectAll').onclick = () => { state.campaigns.forEach(c => state.selected.add(c.filename)); update(); };
+  $('#selectAllDomains').onclick = () => {
+    state.domains.forEach(domain => state.selectedDomains.add(domain.id));
+    loadMatrix().catch(console.error);
+  };
+  $('#clearAllDomains').onclick = () => {
+    state.selectedDomains.clear();
+    loadMatrix().catch(console.error);
+  };
   $('#clearAll').onclick = () => { state.selected.clear(); state.selectedLayers.clear(); update(); };
   $('#selectAllLayers').onclick = () => { selectAllAvailableLayers(); update(false); };
   $('#clearAllLayers').onclick = () => { state.selectedLayers.clear(); update(false); };
@@ -904,7 +964,7 @@
     if (!popover.hidden && !popover.contains(event.target) && !event.target.closest('[data-progress-control]')) closeProgressPopover();
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closeProgressPopover(); });
-  window.addEventListener('attviz:language-changed', () => { closeProgressPopover(); syncSearchClear(); update(); });
+  window.addEventListener('attviz:language-changed', () => { closeProgressPopover(); syncSearchClear(); renderDomains(); update(); });
   enableMatrixPanning();
   const matrixResizer = enableMatrixResizing();
 
@@ -914,6 +974,8 @@
   ]).then(([campaigns, matrix]) => {
     state.campaigns = campaigns.filter(campaign => campaign.status === 'valid')
       .sort((a, b) => a.filename.localeCompare(b.filename, undefined, {sensitivity: 'base'}));
+    state.domains = matrix.domains;
+    matrix.selected_domains.forEach(domain => state.selectedDomains.add(domain));
     state.columns = matrix.columns;
     parentIds().forEach(id => state.subtechExpanded.set(id, false));
     state.campaigns.forEach(campaign => state.selected.add(campaign.filename));
@@ -921,6 +983,7 @@
     state.columns.forEach(column => column.techniques.forEach(technique => state.expandedCampaignBadges.add(technique.id)));
     $('#loading').hidden = true;
     syncSearchClear();
+    renderDomains();
     update();
     window.requestAnimationFrame(() => {
       fitMatrix();

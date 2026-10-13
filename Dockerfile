@@ -5,6 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     ATTVIZ_ATTACK_VERSION=19.2 \
     ATTVIZ_ATTACK_DATA=/app/data/attack/enterprise-attack.json \
+    ATTVIZ_MOBILE_ATTACK_DATA=/app/data/attack/mobile-attack.json \
+    ATTVIZ_ICS_ATTACK_DATA=/app/data/attack/ics-attack.json \
     ATTVIZ_CAMPAIGN_DIR=/app/data/campaigns
 
 WORKDIR /app

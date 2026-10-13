@@ -15,13 +15,17 @@ from app.services.campaign_service import CampaignService
 
 ROOT = Path(__file__).resolve().parents[1]
 ATTACK_VERSION = os.getenv("ATTVIZ_ATTACK_VERSION", "19.2")
-ATTACK_PATH = Path(os.getenv("ATTVIZ_ATTACK_DATA", ROOT / "data/attack/enterprise-attack.json"))
+ATTACK_PATHS = {
+    "enterprise": Path(os.getenv("ATTVIZ_ATTACK_DATA", ROOT / "data/attack/enterprise-attack.json")),
+    "mobile": Path(os.getenv("ATTVIZ_MOBILE_ATTACK_DATA", ROOT / "data/attack/mobile-attack.json")),
+    "ics": Path(os.getenv("ATTVIZ_ICS_ATTACK_DATA", ROOT / "data/attack/ics-attack.json")),
+}
 CAMPAIGN_PATH = Path(os.getenv("ATTVIZ_CAMPAIGN_DIR", ROOT / "data/campaigns"))
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.attack = AttackService(ATTACK_PATH, ATTACK_VERSION)
+    app.state.attack = AttackService(ATTACK_PATHS, ATTACK_VERSION)
     app.state.campaigns = CampaignService(CAMPAIGN_PATH, app.state.attack)
     yield
 
@@ -111,28 +115,32 @@ def terms_page(request: Request):
 
 
 @app.get("/techniques/{technique_id}", include_in_schema=False)
-def technique_detail(technique_id: str, request: Request):
-    technique = request.app.state.attack.get_technique(technique_id)
+def technique_detail(technique_id: str, request: Request, domain: str | None = None):
+    attack = request.app.state.attack
+    domains = attack.domains_for_technique(technique_id)
+    selected_domain = domain if domain in domains else (domains[0] if domains else None)
+    technique = attack.get_technique(technique_id, selected_domain)
     if not technique:
         raise HTTPException(404, "Technique not found")
-    parent = request.app.state.attack.get_technique(technique.parent_id) if technique.parent_id else None
-    children = sorted(
-        [item for item in request.app.state.attack.technique_by_id.values() if item.parent_id == technique.id],
-        key=lambda item: item.id,
-    )
+    parent = attack.get_technique(technique.parent_id, selected_domain) if technique.parent_id else None
+    children = attack.children_for_technique(technique.id, selected_domain)
     return templates.TemplateResponse(request, "technique_detail.html", {
         "active": "main", "attack_version": ATTACK_VERSION, "technique": technique,
-        "parent": parent, "children": children,
+        "parent": parent, "children": children, "domains": domains,
+        "selected_domain": selected_domain, "domain_labels": {item["id"]: item["name"] for item in attack.domain_metadata()},
         "usage": request.app.state.campaigns.usage_for_technique(technique.id),
     })
 
 
 @app.get("/tactics/{short_name}", include_in_schema=False)
-def tactic_detail(short_name: str, request: Request):
-    tactic = request.app.state.attack.get_tactic(short_name)
+def tactic_detail(short_name: str, request: Request, domain: str | None = None):
+    attack = request.app.state.attack
+    domains = attack.domains_for_tactic(short_name)
+    selected_domain = domain if domain in domains else (domains[0] if domains else None)
+    tactic = attack.get_tactic(short_name, selected_domain)
     if not tactic:
         raise HTTPException(404, "Tactic not found")
-    techniques = request.app.state.attack.techniques_by_tactic.get(short_name, [])
+    techniques = attack.techniques_for_tactic(short_name, selected_domain)
     usage = request.app.state.campaigns.usage_for_techniques({item.id for item in techniques})
     technique_ids = {item.id for item in techniques}
     roots = [item for item in techniques if not item.parent_id]
@@ -142,7 +150,7 @@ def tactic_detail(short_name: str, request: Request):
     } for parent in roots]
     orphan_subtechniques = [item for item in techniques if item.parent_id and item.parent_id not in technique_ids]
     for child in orphan_subtechniques:
-        parent = request.app.state.attack.get_technique(child.parent_id)
+        parent = attack.get_technique(child.parent_id, selected_domain)
         existing = next((family for family in families if family["parent"].id == child.parent_id), None)
         if existing:
             existing["children"].append(child)
@@ -152,6 +160,10 @@ def tactic_detail(short_name: str, request: Request):
     return templates.TemplateResponse(request, "tactic_detail.html", {
         "active": "main", "attack_version": ATTACK_VERSION, "tactic": tactic,
         "techniques": techniques, "families": families, "usage": usage,
+        "technique_count": len([item for item in techniques if not item.parent_id]),
+        "subtechnique_count": len([item for item in techniques if item.parent_id]),
+        "domains": domains, "selected_domain": selected_domain,
+        "domain_labels": {item["id"]: item["name"] for item in attack.domain_metadata()},
     })
 
 
@@ -162,4 +174,8 @@ def health(request: Request):
         "status": "ok",
         "attack_version": request.app.state.attack.version,
         "technique_count": len(request.app.state.attack.technique_by_id),
+        "domains": {
+            domain: len(request.app.state.attack.domains[domain].technique_by_id)
+            for domain in request.app.state.attack.available_domains
+        },
     }

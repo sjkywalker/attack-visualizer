@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Pegasus-style Mobile Intrusion",
+  "nickname": "Mobile Spyware",
+  "attribution_candidates": [
+    "Commercial spyware operator (illustrative)",
+    "NSO Group-associated tooling (public reporting reference)"
+  ],
+  "description": "A synthesized mobile surveillance scenario inspired by public reporting on commercial spyware delivery and collection. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#ec4899",
+  "layers": [
+    {
+      "name": "EXT-DELIVERY",
+      "description": "Delivery infrastructure and social-engineering activity outside the managed mobile environment.",
+      "techniques": [
+        {"id": "T1566.002", "status": "seen", "comment": "Enterprise-side delivery context retained for cross-domain comparison."},
+        {"id": "T1660", "status": "seen"},
+        {"id": "T1664", "status": "unseen", "comment": "Exploit chain remains an analytical hypothesis."}
+      ]
+    },
+    {
+      "name": "DMZ-ACCESS",
+      "description": "Managed mobile access boundary and device-facing services.",
+      "techniques": [
+        {"id": "T1623", "status": "unseen"},
+        {"id": "T1407", "status": "seen"},
+        {"id": "T1631", "status": "unseen"},
+        {"id": "T1544", "status": "seen"},
+        {"id": "T1521", "status": "seen"}
+      ]
+    },
+    {
+      "name": "INT-ENDPOINT",
+      "description": "Post-compromise discovery, surveillance collection, and exfiltration on the mobile endpoint.",
+      "techniques": [
+        {"id": "T1420", "status": "seen"},
+        {"id": "T1430", "status": "seen"},
+        {"id": "T1417", "status": "unseen"},
+        {"id": "T1513", "status": "seen"},
+        {"id": "T1437", "status": "seen"},
+        {"id": "T1646", "status": "unseen"},
+        {"id": "T1071.001", "status": "seen", "comment": "Enterprise web-protocol telemetry provides adjacent network context."}
+      ]
+    }
+  ]
+}

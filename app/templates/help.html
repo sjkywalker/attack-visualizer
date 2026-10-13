@@ -42,13 +42,14 @@
 
     <h2 id="management-ko">캠페인 관리</h2>
     <ul><li>웹에서 JSON을 생성·조회·편집·파일명 변경·복제·삭제하며 JSON 파일이 유일한 원본입니다.</li><li>새 캠페인의 파일명을 비워 두면 이름에서 자동 생성됩니다. 편집할 때는 <code>.json</code> 파일명을 직접 변경할 수 있으며 기존 파일과의 충돌 및 안전하지 않은 경로는 거부됩니다.</li><li>복제 파일은 원본 파일명에 <code>-copy</code>를 붙이며, 이미 존재하면 충돌하지 않을 때까지 <code>-copy</code>를 반복해서 붙입니다.</li><li>관리 목록과 메인 화면의 기본 캠페인 순서는 파일명 기준 오름차순입니다. 메인 화면에서는 이후 드래그해 표시 순서를 바꿀 수 있습니다.</li><li>nickname, 여러 귀속 후보, 여러 줄 설명, 색상 선택기·HEX와 44색 팔레트를 지원합니다. 팔레트 열은 같은 색상 계열로 정렬되고 행은 위에서 아래로 밝음·중간·진함·어두움의 명도 그라데이션입니다.</li><li>빈 입력란은 저장되지 않는 간단한 예시를 표시합니다. Layer 이름에는 <code>EXT-INFRA / DMZ-WEB / INT-ENDPOINT</code> 예시가 보이지만 실제 이름은 제한하지 않습니다.</li><li>레이어마다 T-code 행을 추가하고 확인됨/미확인 중 하나를 선택하며 T-code별 분석 주석을 기록할 수 있습니다.</li><li>편집 내용이 바뀐 상태에서 Esc, 취소 또는 닫기를 사용하면 저장하지 않고 나갈지 확인합니다.</li><li>레이어 카드를 드래그하고 저장하면 실제 <code>layers</code> 배열 순서가 바뀝니다.</li><li>잘못된 캠페인은 오류와 함께 관리 화면에 남고 메인 시각화에서는 제외됩니다.</li></ul>
-    <p>기본 데모는 북한 연계 Operation Dream Job·WannaCry, 중국 연계 Operation CuckooBees·Operation Wocao, 러시아 연계 2015 Ukraine Electric Power Attack·NotPetya의 여섯 시나리오입니다. 국가별 색상 계열을 공유하고 Reconnaissance부터 Impact까지 다양한 행위와 현실적인 중첩을 보여줍니다. WannaCry의 <code>T1210</code>은 <code>INT-ENDPOINT</code>에서 미확인, <code>INT-NETWORK</code>에서 확인됨으로 설정되어 혼합 상태를 시연합니다. 주석은 두 상태 모두에서 분석 근거와 맥락을 기록하며 미확인 전용 필드가 아닙니다. 공개 자료를 시각화 목적으로 보강한 데모이므로 권위 있는 사건 재구성으로 사용하지 마십시오.</p>
+    <p>기본 데모는 Enterprise, Mobile, ICS 시나리오가 각각 2개씩 총 6개이며, 도메인별 고유 셀과 캠페인 간 중첩, 확인됨·미확인 상태를 함께 시연합니다. 공통 레이어 이름은 EXT·DMZ·INT 그룹별로 3개씩 사용합니다. Enterprise Web-to-Identity 데모의 <code>T1071.001</code>은 <code>DMZ-WEB</code>에서 확인됨, <code>INT-NETWORK</code>에서 미확인으로 설정되어 혼합 상태를 보여줍니다. 주석은 두 상태 모두에서 분석 근거와 맥락을 기록하며 미확인 전용 필드가 아닙니다. 공개 자료를 시각화 목적으로 보강한 데모이므로 권위 있는 사건 재구성으로 사용하지 마십시오.</p>
 
     <h2 id="platform-ko">OS별 실행</h2>
     <ul><li>Ubuntu/Linux와 macOS에서는 <code>./scripts/docker.sh rebuild</code>를 사용합니다. Unix wrapper는 현재 UID/GID를 전달해 캠페인 bind mount의 권한 충돌을 줄입니다.</li><li>Windows에서는 Docker Desktop의 Linux containers 및 WSL2 backend를 권장하며 PowerShell에서 <code>.\scripts\docker.ps1 rebuild</code>를 사용합니다.</li><li>Docker 없이 실행할 때는 Python 3.12 가상환경과 <code>requirements.txt</code>를 사용합니다. 테스트에는 <code>requirements-dev.txt</code>를 설치합니다.</li><li>최초 이미지 빌드에는 패키지 다운로드용 네트워크가 필요하지만 빌드 후 ATT&amp;CK 분석은 오프라인으로 동작합니다.</li></ul>
 
     <h2 id="matrix-ko">매트릭스 사용</h2>
     <ul>
+      <li>도메인 행에서 Enterprise, Mobile, ICS를 복수 선택합니다. 최초에는 세 도메인이 모두 선택되며, 전체 선택과 모두 해제를 사용할 수 있습니다. 선택한 도메인에 같은 전술이 있으면 하나의 열로, 그 전술 안에 같은 T-code가 있으면 하나의 셀로 합치고 도메인별 고유 기술은 별도 셀로 유지합니다.</li>
       <li>처음에는 모든 유효 캠페인과 모든 레이어가 선택됩니다.</li>
       <li>캠페인은 파일명순이며 칩에는 nickname을 표시합니다. hover하면 색상 점, 정식 이름, nickname 배지, 귀속 후보, 설명, 레이어 배지와 고유 Techniques 수가 표시됩니다.</li>
       <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. Layer의 기본 표시는 <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, 기타 이름 순이고 각 그룹 안에서는 알파벳순입니다. 새로 등장한 Layer도 해당 그룹 위치에 들어가며 사용자가 드래그해 다시 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되고 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
@@ -61,9 +62,9 @@
       <li>매트릭스 안에서 마우스 가운데 버튼을 한 번 클릭하면 상하좌우 표시가 나타나고, 중심에서 마우스를 움직인 방향과 거리에 따라 자동 이동합니다. 가운데 버튼을 다시 클릭하거나 좌클릭 또는 Esc를 누르면 종료됩니다. 오른쪽 버튼을 누른 채 드래그하는 직접 패닝도 지원합니다. 두 동작 모두 매트릭스 내부만 이동하고 웹페이지는 움직이지 않으며 전술 헤더는 상단에 고정됩니다. 매트릭스 안에서는 컨텍스트 메뉴가 표시되지 않습니다.</li>
       <li>매트릭스 표시 영역은 최초 로드 시 현재 기술·하위 기술 전체를 볼 수 있는 최대 높이로 설정됩니다. 가장 아래쪽 손잡이를 위아래로 드래그하거나 키보드의 위·아래 화살표로 높이를 조절할 수 있습니다. 손잡이를 더블클릭하면 약 3개 셀을 볼 수 있는 최소 높이와 전체를 볼 수 있는 최대 높이 사이를 전환합니다.</li>
       <li>전술 헤더는 기술 영역과 분리되어 상단에 고정됩니다. 가로·세로 스크롤바와 패닝은 헤더가 아닌 기술·하위 기술 영역에만 적용되며, 가로 이동 시 헤더 열은 기술 열과 동기화됩니다.</li>
-      <li>각 전술 헤더에는 현재 필터와 접기 상태에서 표시 중인 일반 기술 수와 하위 기술 수가 각각 표시되며, hover 요약에서도 두 값을 확인할 수 있습니다.</li>
+      <li>각 전술 헤더에는 해당 전술이 존재하는 도메인과 현재 필터·접기 상태에서 표시 중인 일반 기술 수·하위 기술 수가 각각 표시됩니다. 전술·기술·하위 기술 hover 요약에도 존재 도메인이 표시되고, 전술 상세 페이지는 일반 기술과 하위 기술 수를 따로 보여줍니다.</li>
       <li>T-code와 기술 이름 검색 결과는 캠페인 색상과 별도의 윤곽선으로 표시합니다. 검색어가 있으면 입력창 오른쪽의 <code>×</code> 버튼으로 검색어와 강조를 한 번에 지울 수 있습니다.</li>
-      <li>전술 헤더와 기술을 hover하면 요약을 보고, 클릭하면 새 탭의 내부 상세 페이지와 MITRE 원문 링크를 확인합니다. 기술 상세 화면의 캠페인 카드에는 귀속 후보와 해당 T-code가 사용된 레이어가 각각 표시됩니다.</li>
+      <li>전술 헤더와 기술을 hover하면 요약을 보고, 클릭하면 새 탭의 내부 상세 페이지와 MITRE 원문 링크를 확인합니다. 여러 도메인에 존재하는 전술·T-code는 상세 화면 상단의 Enterprise/Mobile/ICS 탭으로 도메인별 설명과 계층을 전환합니다. 기술 상세 화면의 캠페인 카드에는 귀속 후보와 해당 T-code가 사용된 레이어가 각각 표시됩니다.</li>
       <li>PNG는 뷰포트 높이와 스크롤 위치에 관계없이 고정 전술 헤더와 전체 기술 영역을 한 장으로 내보냅니다. 기술명은 브라우저에 표시된 실제 줄 구분과 위치를 사용하므로 배지와 겹치지 않으며, 작은 라벨과 배지의 글자도 상하 중앙에 맞춥니다. 현재 필터, 검색, 숨김, 접기, 배지, T-code, SUB 태그·branch, 셀 곡선을 따르는 왼쪽 색상 바와 배율을 반영합니다. SVG 내보내기는 비활성화되어 있습니다.</li>
     </ul>
 
@@ -79,7 +80,7 @@
     <details><summary>JSON 파일을 직접 편집해도 되나요?</summary><p>네. JSON 파일이 유일한 원본입니다.</p></details>
     <details><summary>같은 기술이 여러 레이어에 있어도 되나요?</summary><p>네. 각 경계에서 반복되는 행위를 표현합니다.</p></details>
     <details><summary>왜 부모 기술이 강조되지 않나요?</summary><p>명시한 T-code만 강조합니다. 부모도 강조하려면 부모 ID를 추가하세요.</p></details>
-    <details><summary>ATT&amp;CK 데이터는 어떻게 변경하나요?</summary><p><code>data/attack/enterprise-attack.json</code>을 공식 STIX 번들로 교체하고 앱을 재시작하세요. Docker 이미지의 파일을 바꾸면 재빌드해야 합니다.</p></details>
+    <details><summary>ATT&amp;CK 데이터는 어떻게 변경하나요?</summary><p><code>data/attack/</code>의 Enterprise, Mobile, ICS JSON을 같은 버전의 공식 STIX 번들로 모두 교체하고 앱을 재시작하세요. Docker 이미지의 파일을 바꾸면 재빌드해야 합니다.</p></details>
     <details><summary>색상이 섞이는 이유는 무엇인가요?</summary><p>여러 캠페인에 공통인 기술입니다. 셀 배지로 구성 캠페인을 확인하세요.</p></details>
     <details><summary>회사 내부에서 사용할 수 있나요?</summary><p>영리기업의 내부 분석·평가·PoC를 포함한 사용은 공개 라이선스로 허용되지 않으며 저작권자의 별도 서면 라이선스가 필요합니다.</p></details>
   </article>
@@ -121,13 +122,14 @@
 
     <h2 id="management-en">Campaign Management</h2>
     <ul><li>Create, view, edit, rename, duplicate, and delete source JSON files; those files are the sole source of truth.</li><li>Leave a new campaign filename blank to generate it from the name. While editing, you can change the <code>.json</code> filename directly; collisions and unsafe paths are rejected.</li><li>A duplicate appends <code>-copy</code> to the source filename, repeating <code>-copy</code> until the filename is unique.</li><li>The management list and the main page's initial campaign order are sorted by filename. You can then drag campaigns on the main page to change their display order.</li><li>Edit nicknames, multiple attribution candidates, multiline descriptions, picker/HEX colors, and a 44-color palette. Columns align matching hue families while rows progress from light through medium and strong to dark.</li><li>Empty fields display non-persistent examples. The Layer name example uses <code>EXT-INFRA / DMZ-WEB / INT-ENDPOINT</code> without restricting actual names.</li><li>Add T-code rows to each layer, choose exactly one Seen/Unseen state, and record a per-T-code analyst comment.</li><li>If the editor has changed, Esc, Cancel, or Close asks before discarding unsaved work.</li><li>Drag layer cards and save to change the actual <code>layers</code> array order.</li><li>Invalid campaigns remain visible with errors but are excluded from visualization.</li></ul>
-    <p>The six built-in demos cover North Korea-linked Operation Dream Job and WannaCry, China-linked Operation CuckooBees and Operation Wocao, and Russia-linked 2015 Ukraine Electric Power Attack and NotPetya. Country pairs share color families and provide varied, realistically overlapping behavior from Reconnaissance through Impact. WannaCry sets <code>T1210</code> to Unseen in <code>INT-ENDPOINT</code> and Seen in <code>INT-NETWORK</code> to demonstrate the Mixed state. Comments record evidence and analyst context for either status and are not Unseen-only fields. These demos enrich public reporting for visualization and are not authoritative incident reconstructions.</p>
+    <p>The built-in catalog contains two scenarios for each of Enterprise, Mobile, and ICS, for six active demos total. They demonstrate domain-specific cells, realistic campaign overlap, and Seen/Unseen states while sharing exactly three layer names in each EXT, DMZ, and INT group. The Enterprise Web-to-Identity demo sets <code>T1071.001</code> to Seen in <code>DMZ-WEB</code> and Unseen in <code>INT-NETWORK</code> to demonstrate the Mixed state. Comments record evidence and analyst context for either status and are not Unseen-only fields. These demos enrich public reporting for visualization and are not authoritative incident reconstructions.</p>
 
     <h2 id="platform-en">OS Setup</h2>
     <ul><li>On Ubuntu/Linux and macOS, use <code>./scripts/docker.sh rebuild</code>. The Unix wrapper passes the current UID/GID to reduce campaign bind-mount permission conflicts.</li><li>On Windows, use Docker Desktop with Linux containers and the WSL2 backend, then run <code>.\scripts\docker.ps1 rebuild</code> in PowerShell.</li><li>For non-Docker execution, use a Python 3.12 virtual environment and <code>requirements.txt</code>. Install <code>requirements-dev.txt</code> for tests.</li><li>The first image build needs network access for packages; ATT&amp;CK analysis works offline after the image is built.</li></ul>
 
     <h2 id="matrix-en">Matrix Usage</h2>
     <ul>
+      <li>Multi-select Enterprise, Mobile, and ICS in the Domains row. All three are selected initially; Select all and Clear all are available. A tactic shared by selected domains becomes one column, and the same T-code under that tactic becomes one cell, while domain-specific techniques remain separate cells.</li>
       <li>All valid campaigns and layers are selected initially.</li>
       <li>Campaigns are sorted by filename while chips display nicknames. Hover for the color dot, full name, nickname badge, attribution, description, layer badges, and unique technique count.</li>
       <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Layers initially appear as <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, then other names, with alphabetical ordering inside each group. Newly available layers enter their default group position and can be reordered manually. Hovering either chip type highlights its drag handle.</li>
@@ -140,9 +142,9 @@
       <li>Click the middle mouse button once inside the matrix to show a four-way marker and auto-pan according to the pointer's direction and distance from its center. Click the middle button again, left-click, or press Esc to stop. Direct right-button drag panning is also available. Both interactions move only the matrix—not the webpage—while tactic headers remain fixed at the top. The context menu is suppressed inside the matrix.</li>
       <li>The matrix display initially uses the maximum height needed for all current techniques and sub-techniques. Drag the bottom handle or use the Up and Down arrow keys while it is focused to resize it. Double-click the handle to toggle between that maximum and a minimum height of roughly three cells.</li>
       <li>Tactic headers are separated from the technique area and remain fixed above it. Scrollbars and panning apply only to techniques and sub-techniques, while horizontal movement keeps header columns synchronized with technique columns.</li>
-      <li>Each tactic header separately reports the visible technique and sub-technique counts for the current filters and collapse state; the hover summary shows both values as well.</li>
+      <li>Each tactic header reports the domains where that tactic exists, plus separate visible technique and sub-technique counts for the current filters and collapse state. Tactic, technique, and sub-technique hover summaries also show their domains, while tactic detail pages report technique and sub-technique totals separately.</li>
       <li>Search by T-code or name using an outline distinct from campaign colors. When a query is present, use the <code>×</code> button at the right of the field to clear the query and its highlighting at once.</li>
-      <li>Hover tactics and techniques for summaries; click to open internal details and MITRE source links in a new tab. Campaign cards on technique detail pages separately label attribution candidates and the layers where that T-code is used.</li>
+      <li>Hover tactics and techniques for summaries; click to open internal details and MITRE source links in a new tab. For tactics or T-codes present in multiple domains, Enterprise/Mobile/ICS tabs switch the domain-specific description and hierarchy. Campaign cards on technique detail pages separately label attribution candidates and the layers where that T-code is used.</li>
       <li>PNG export ignores viewport height and scroll position, combining the fixed tactic headers and full technique area in one image. Technique names use the browser's actual line breaks and positions so they do not overlap badges, while text in compact labels and badges is vertically centered. The image reflects current filters, search, visibility, collapse, badges, T-codes, SUB labels and branches, curved left-edge cell accents, and scale. SVG export is disabled.</li>
     </ul>
 
@@ -158,7 +160,7 @@
     <details><summary>Can I edit JSON manually?</summary><p>Yes. JSON files are the sole source of truth.</p></details>
     <details><summary>Can a technique appear in multiple layers?</summary><p>Yes. This represents behavior repeated across boundaries.</p></details>
     <details><summary>Why is a parent technique not highlighted?</summary><p>Only explicitly listed T-codes are highlighted. Add the parent ID separately.</p></details>
-    <details><summary>How do I replace ATT&amp;CK data?</summary><p>Replace <code>data/attack/enterprise-attack.json</code> with an official STIX bundle and restart. Rebuild Docker when changing an image-bundled file.</p></details>
+    <details><summary>How do I replace ATT&amp;CK data?</summary><p>Replace the Enterprise, Mobile, and ICS JSON files in <code>data/attack/</code> with matching-version official STIX bundles and restart. Rebuild Docker when changing image-bundled files.</p></details>
     <details><summary>Why are colors blended?</summary><p>The technique is shared by multiple campaigns. Cell badges identify the contributing campaigns.</p></details>
     <details><summary>May my company use this internally?</summary><p>Internal analysis, evaluation, and proofs of concept by a for-profit organization are not permitted by the public license and require a separate written license from the copyright holder.</p></details>
   </article>

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Ukraine Grid ICS Disruption",
+  "nickname": "Grid ICS",
+  "attribution_candidates": [
+    "Russia-linked Sandworm (public reporting reference)"
+  ],
+  "description": "A synthesized ICS-focused companion to the enterprise-side Ukraine power demo, using public patterns for remote access, operator interference, and outage effects. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#14b8a6",
+  "layers": [
+    {
+      "name": "EXT-REMOTE",
+      "description": "External remote-access path and exposed operational support services.",
+      "techniques": [
+        {"id": "T1133", "status": "seen", "comment": "Enterprise remote-access context."},
+        {"id": "T0822", "status": "seen"},
+        {"id": "T0886", "status": "unseen"}
+      ]
+    },
+    {
+      "name": "DMZ-JUMP",
+      "description": "Transition through the industrial DMZ and operator-access systems.",
+      "techniques": [
+        {"id": "T0807", "status": "seen"},
+        {"id": "T0859", "status": "unseen"},
+        {"id": "T0840", "status": "seen"},
+        {"id": "T0846", "status": "seen"},
+        {"id": "T0843", "status": "unseen"},
+        {"id": "T0869", "status": "seen"},
+        {"id": "T0885", "status": "seen"}
+      ]
+    },
+    {
+      "name": "INT-CRITICAL",
+      "description": "Control-system manipulation and availability impact within the operational environment.",
+      "techniques": [
+        {"id": "T0802", "status": "unseen"},
+        {"id": "T0838", "status": "unseen"},
+        {"id": "T0814", "status": "seen"},
+        {"id": "T0836", "status": "seen"},
+        {"id": "T0813", "status": "seen"},
+        {"id": "T0826", "status": "seen"}
+      ]
+    }
+  ]
+}

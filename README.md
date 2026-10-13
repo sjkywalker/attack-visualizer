@@ -3,14 +3,14 @@
 **English** | [한국어](README.ko.md)
 
 ATT&CK Visualizer is a local-first web application for comparing campaign-level
-adversary behavior across the **MITRE ATT&CK Enterprise Matrix**. Campaign JSON
+adversary behavior across the **MITRE ATT&CK Enterprise, Mobile, and ICS matrices**. Campaign JSON
 files are the source of truth, and no database is required.
 
 <p align="center"><img src="demo.png" alt="ATT&amp;CK Visualizer campaign matrix dashboard" width="100%"></p>
-<p align="center"><em>Campaign and layer selections mapped onto the ATT&amp;CK Enterprise Matrix.</em></p>
+<p align="center"><em>Campaign and layer selections mapped onto selectable ATT&amp;CK domains.</em></p>
 
 - Python 3.11+ / FastAPI / Jinja2 / Vanilla JavaScript
-- MITRE ATT&CK Enterprise v19.2
+- MITRE ATT&CK Enterprise, Mobile, and ICS v19.2
 - Docker or local Python operation
 - Default URL: <http://127.0.0.1:8000> (configured by `ATTVIZ_PORT` in `.env`)
 
@@ -19,10 +19,11 @@ files are the source of truth, and no database is required.
 - Automatic discovery and web-based creation, editing, renaming, duplication,
   and deletion of `data/campaigns/*.json`
 - Multi-select campaigns and layers with grouped `EXT`/`DMZ`/`INT` defaults and draggable display ordering
+- Multi-select Enterprise, Mobile, and ICS domains; shared tactics and T-codes are merged in the matrix
 - ATT&CK tactic, technique, and sub-technique hierarchy with unused-item filters
 - Campaign color blending, nickname badges, and expandable overlap details
 - Per-T-code seen/unseen progress tracking, dashboard status filters, and analyst comments
-- T-code and technique-name search, hover summaries, and internal detail pages
+- T-code and technique-name search, hover summaries, and domain-specific internal detail tabs
 - Automatic initial fit-to-width, manual matrix zoom, and PNG export reflecting the current view
 - Graceful isolation and reporting of malformed JSON, schemas, and T-codes
 - English and Korean functional UI and help content
@@ -99,6 +100,8 @@ python -m app.server --reload
 ```text
 data/campaigns/                     User campaign JSON files
 data/attack/enterprise-attack.json  MITRE ATT&CK Enterprise STIX bundle
+data/attack/mobile-attack.json      MITRE ATT&CK Mobile STIX bundle
+data/attack/ics-attack.json         MITRE ATT&CK ICS STIX bundle
 ```
 
 Campaign files can be copied or edited manually or managed through
@@ -176,8 +179,8 @@ by this project. See `/disclaimer` for the full explanation.
 The demos consistently use `EXT-*`, `DMZ-*`, and `INT-*` layer names to identify
 the trust zone first and one asset or operational tag second. This is a demo
 convention rather than an application validation rule.
-WannaCry deliberately assigns `T1210` different states in `INT-ENDPOINT` and
-`INT-NETWORK` to demonstrate the matrix's multi-layer `Mixed` state. Comments
+The Enterprise Web-to-Identity demo deliberately assigns `T1071.001` different
+states in `DMZ-WEB` and `INT-NETWORK` to demonstrate the matrix's multi-layer `Mixed` state. Comments
 appear on both seen and unseen entries and provide analyst context rather than
 determining status.
 

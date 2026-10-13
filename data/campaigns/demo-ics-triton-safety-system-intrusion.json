@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — TRITON Safety-System Intrusion",
+  "nickname": "TRITON",
+  "attribution_candidates": [
+    "Russia-linked TEMP.Veles (public reporting reference)"
+  ],
+  "description": "A synthesized safety-instrumented-system intrusion path inspired by public TRITON reporting. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#06b6d4",
+  "layers": [
+    {
+      "name": "EXT-REMOTE",
+      "description": "External access and exposed service activity leading toward the industrial environment.",
+      "techniques": [
+        {"id": "T1190", "status": "unseen", "comment": "Enterprise perimeter hypothesis included for cross-domain context."},
+        {"id": "T0822", "status": "seen"},
+        {"id": "T0819", "status": "unseen"}
+      ]
+    },
+    {
+      "name": "DMZ-JUMP",
+      "description": "Industrial DMZ and engineering jump-host activity.",
+      "techniques": [
+        {"id": "T0807", "status": "seen"},
+        {"id": "T0853", "status": "seen"},
+        {"id": "T0859", "status": "seen"},
+        {"id": "T0849", "status": "unseen"},
+        {"id": "T0846", "status": "seen"},
+        {"id": "T0869", "status": "seen"}
+      ]
+    },
+    {
+      "name": "INT-CRITICAL",
+      "description": "Safety controller interaction, process manipulation, and response inhibition.",
+      "techniques": [
+        {"id": "T0843", "status": "seen"},
+        {"id": "T0845", "status": "unseen"},
+        {"id": "T0838", "status": "seen"},
+        {"id": "T0836", "status": "seen"},
+        {"id": "T0831", "status": "unseen"},
+        {"id": "T0813", "status": "unseen"}
+      ]
+    }
+  ]
+}

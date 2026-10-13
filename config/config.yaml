@@ -1,4 +1,6 @@
 attack_version: "19.2"
-attack_data: "data/attack/enterprise-attack.json"
+attack_data:
+  enterprise: "data/attack/enterprise-attack.json"
+  mobile: "data/attack/mobile-attack.json"
+  ics: "data/attack/ics-attack.json"
 campaign_directory: "data/campaigns"
-

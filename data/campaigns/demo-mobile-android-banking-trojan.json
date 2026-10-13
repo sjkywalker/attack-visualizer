@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Android Banking Trojan Campaign",
+  "nickname": "Banking Trojan",
+  "attribution_candidates": [
+    "Financially motivated Android malware operators (illustrative)"
+  ],
+  "description": "A synthesized Android banking-trojan scenario combining public patterns for phishing, credential theft, remote control, and fraud. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#a855f7",
+  "layers": [
+    {
+      "name": "EXT-DELIVERY",
+      "description": "Phishing and malicious application delivery outside the protected device boundary.",
+      "techniques": [
+        {"id": "T1566.002", "status": "unseen"},
+        {"id": "T1660", "status": "seen"},
+        {"id": "T1661", "status": "seen"}
+      ]
+    },
+    {
+      "name": "DMZ-ACCESS",
+      "description": "Mobile service access and staged payload execution.",
+      "techniques": [
+        {"id": "T1623", "status": "seen"},
+        {"id": "T1407", "status": "seen"},
+        {"id": "T1631", "status": "unseen"},
+        {"id": "T1521", "status": "seen"},
+        {"id": "T1437", "status": "seen"}
+      ]
+    },
+    {
+      "name": "INT-ENDPOINT",
+      "description": "Credential collection, device discovery, command execution, and disruptive fraud effects.",
+      "techniques": [
+        {"id": "T1417", "status": "seen"},
+        {"id": "T1420", "status": "seen"},
+        {"id": "T1423", "status": "unseen"},
+        {"id": "T1513", "status": "unseen"},
+        {"id": "T1646", "status": "seen"},
+        {"id": "T1641", "status": "seen"},
+        {"id": "T1471", "status": "unseen"},
+        {"id": "T1071.001", "status": "seen", "comment": "Correlated enterprise proxy observation."}
+      ]
+    }
+  ]
+}

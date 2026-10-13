@@ -1,8 +1,22 @@
 {% extends "base.html" %}
 {% block title %}{{ tactic.name }} · ATT&CK Visualizer{% endblock %}
 {% block content %}
-<nav class="breadcrumb"><a href="/" data-i18n="matrix_breadcrumb">Enterprise Matrix</a><span>›</span><span>{{ tactic.name }}</span></nav>
-<section class="detail-hero card"><div><p class="eyebrow">TACTIC</p><h1>{{ tactic.name }}</h1><p>{{ tactic.description }}</p></div>{% if tactic.url %}<a class="secondary external-link" href="{{ tactic.url }}" target="_blank" rel="noopener noreferrer" data-i18n="mitre_source">MITRE 원문 ↗</a>{% endif %}</section>
-<section class="card detail-section tactic-techniques"><h2><span data-i18n="techniques">기술</span> <span class="count-pill">{{ techniques | length }}</span></h2><div class="technique-families">{% for family in families %}<section class="technique-family"><a href="/techniques/{{ family.parent.id }}" class="detail-technique family-parent"><code>{{ family.parent.id }}</code><span>{{ family.parent.name }}</span>{% if usage.get(family.parent.id) %}<b>{{ usage[family.parent.id] | length }} <span data-i18n="campaigns">캠페인</span></b>{% endif %}</a>{% if family.children %}<div class="family-children">{% for child in family.children %}<a href="/techniques/{{ child.id }}" class="detail-technique is-sub"><code>{{ child.id }}</code><span>{{ child.name }}</span>{% if usage.get(child.id) %}<b>{{ usage[child.id] | length }} <span data-i18n="campaigns">캠페인</span></b>{% endif %}</a>{% endfor %}</div>{% endif %}</section>{% endfor %}</div></section>
+<nav class="breadcrumb"><a href="/" data-i18n="matrix_breadcrumb">ATT&amp;CK Matrix</a><span>›</span><span>{{ tactic.name }}</span></nav>
+<nav class="domain-tabs" aria-label="ATT&amp;CK domain">
+  {% for domain in domains %}<a href="/tactics/{{ tactic.short_name }}?domain={{ domain }}" class="{{ 'active' if domain == selected_domain else '' }}" aria-current="{{ 'page' if domain == selected_domain else 'false' }}">{{ domain_labels[domain] }}</a>{% endfor %}
+</nav>
+<section class="detail-hero card">
+  <div><p class="eyebrow">TACTIC</p><h1>{{ tactic.name }}</h1><p>{{ tactic.description }}</p></div>
+  {% if tactic.url %}<a class="secondary external-link" href="{{ tactic.url }}" target="_blank" rel="noopener noreferrer" data-i18n="mitre_source">MITRE 원문 ↗</a>{% endif %}
+</section>
+<section class="card detail-section tactic-techniques">
+  <h2><span data-i18n="techniques">기술</span> <span class="count-pill">{{ technique_count }}</span> <span data-i18n="subtechniques">하위 기술</span> <span class="count-pill">{{ subtechnique_count }}</span></h2>
+  <div class="technique-families">
+    {% for family in families %}<section class="technique-family">
+      <a href="/techniques/{{ family.parent.id }}?domain={{ selected_domain }}" class="detail-technique family-parent"><code>{{ family.parent.id }}</code><span>{{ family.parent.name }}</span>{% if usage.get(family.parent.id) %}<b>{{ usage[family.parent.id] | length }} <span data-i18n="campaigns">캠페인</span></b>{% endif %}</a>
+      {% if family.children %}<div class="family-children">{% for child in family.children %}<a href="/techniques/{{ child.id }}?domain={{ selected_domain }}" class="detail-technique is-sub"><code>{{ child.id }}</code><span>{{ child.name }}</span>{% if usage.get(child.id) %}<b>{{ usage[child.id] | length }} <span data-i18n="campaigns">캠페인</span></b>{% endif %}</a>{% endfor %}</div>{% endif %}
+    </section>{% endfor %}
+  </div>
+</section>
 {% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', path='/css/details.css') }}">{% endblock %}

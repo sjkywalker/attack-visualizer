@@ -77,6 +77,7 @@
 
 .chip.active .chip-dot { animation: campaign-dot-breathe 2.2s ease-in-out infinite; }
 .layer-filter-chip, .campaign-filter-chip { position: relative; cursor: grab; will-change: transform; }
+.domain-filter-chip.active:hover,.domain-filter-chip.active:focus-visible { border-color: #ff8a4c; box-shadow: 0 0 10px #f15a2433; }
 .layer-filter-chip:active, .campaign-filter-chip:active { cursor: grabbing; }
 .layer-filter-chip.dragging, .campaign-filter-chip.dragging { opacity: .48; border-style: dashed; box-shadow: 0 0 0 2px #3ddbd926; }
 .layer-drag { margin-right: 5px; color: #7591a3; font-size: 12px; line-height: 1; }
@@ -138,7 +139,7 @@
   zoom: var(--matrix-zoom,1);
 }
 .matrix-header { align-items: stretch; }
-.matrix-header .tactic-title { position: relative; top: auto; height: 84px; }
+.matrix-header .tactic-title { position: relative; top: auto; height: 112px; }
 .matrix-viewport {
   height: 360px;
   overflow: auto;
@@ -165,7 +166,7 @@
 }
 
 .tactic-title {
-  height: 84px;
+  height: 112px;
   padding: 11px 13px;
   box-shadow: 0 5px 10px #050b1166;
   color: inherit;
@@ -174,6 +175,7 @@
 }
 .tactic-title small + small { margin-top: 2px; }
 .tactic-title small { white-space: nowrap; }
+.tactic-title .tactic-domains { margin-top: 5px; overflow: hidden; color: #8ddbd9; font-size: 9px; line-height: 1.25; letter-spacing: .02em; text-overflow: ellipsis; }
 .tactic-title:hover { background: #163047; border-bottom-color: var(--cyan); }
 
 .technique-list { padding-top: 10px; }

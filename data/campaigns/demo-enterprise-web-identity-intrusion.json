@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Enterprise Web-to-Identity Intrusion",
+  "nickname": "Web Identity",
+  "attribution_candidates": [
+    "State-aligned intrusion operator (illustrative)",
+    "Financially motivated access broker (illustrative)"
+  ],
+  "description": "A synthesized enterprise intrusion linking external discovery, public-facing application compromise, identity access, and internal collection. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#f97316",
+  "layers": [
+    {
+      "name": "EXT-REMOTE",
+      "description": "Internet reconnaissance and access attempts against externally reachable enterprise services.",
+      "techniques": [
+        {
+          "id": "T1595.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1190",
+          "status": "seen"
+        },
+        {
+          "id": "T1133",
+          "status": "unseen",
+          "comment": "Remote-service access remains under validation."
+        }
+      ]
+    },
+    {
+      "name": "DMZ-WEB",
+      "description": "Compromised web tier used for persistence, payload transfer, and outbound command traffic.",
+      "techniques": [
+        {
+          "id": "T1505.003",
+          "status": "seen"
+        },
+        {
+          "id": "T1105",
+          "status": "seen"
+        },
+        {
+          "id": "T1071.001",
+          "status": "seen",
+          "comment": "Confirmed outbound web-protocol traffic from the compromised web tier."
+        },
+        {
+          "id": "T1036.005",
+          "status": "unseen"
+        },
+        {
+          "id": "T1027",
+          "status": "unseen"
+        }
+      ]
+    },
+    {
+      "name": "INT-NETWORK",
+      "description": "Identity discovery, credential access, lateral movement, staging, and exfiltration inside the enterprise network.",
+      "techniques": [
+        {
+          "id": "T1059.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1003.001",
+          "status": "unseen"
+        },
+        {
+          "id": "T1087.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1018",
+          "status": "seen"
+        },
+        {
+          "id": "T1046",
+          "status": "seen"
+        },
+        {
+          "id": "T1021.002",
+          "status": "unseen"
+        },
+        {
+          "id": "T1071.001",
+          "status": "unseen",
+          "comment": "Internal occurrence remains unconfirmed, producing a layer-level mixed state."
+        },
+        {
+          "id": "T1560.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1041",
+          "status": "seen"
+        }
+      ]
+    }
+  ]
+}

@@ -63,6 +63,14 @@
   translations.en.seen = 'Seen';
   translations.ko.unseen = '미확인';
   translations.en.unseen = 'Unseen';
+  translations.ko.domains = '도메인';
+  translations.en.domains = 'Domains';
+  translations.ko.domain = '도메인';
+  translations.en.domain = 'Domain';
+  translations.ko.hero_text = '캠페인과 사용자 정의 분석 레이어 전반의 ATT&CK 행위를 비교합니다.';
+  translations.en.hero_text = 'Compare ATT&CK behavior across campaigns and user-defined analysis layers.';
+  translations.ko.matrix_breadcrumb = 'ATT&CK 매트릭스';
+  translations.en.matrix_breadcrumb = 'ATT&CK Matrix';
   let language = localStorage.getItem('attviz-language') || (navigator.language?.toLowerCase().startsWith('ko') ? 'ko' : 'en');
   if (!translations[language]) language = 'en';
   function t(key) { return translations[language][key] || translations.ko[key] || key; }

@@ -11,6 +11,7 @@ class Tactic(BaseModel):
     description: str = ""
     url: str | None = None
     order: int = 0
+    domains: list[str] = []
 
 
 class Technique(BaseModel):
@@ -22,6 +23,7 @@ class Technique(BaseModel):
     parent_name: str | None = None
     platforms: list[str] = []
     url: str
+    domains: list[str] = []
 
 
 class MatrixColumn(BaseModel):

@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "name": "Demo — Enterprise Supply-Chain Compromise",
+  "nickname": "Supply Chain",
+  "attribution_candidates": [
+    "Software supply-chain intrusion operator (illustrative)"
+  ],
+  "description": "A synthesized enterprise supply-chain scenario spanning infrastructure preparation, trusted access, endpoint execution, discovery, and operational impact. This is demo data, not an authoritative incident reconstruction.",
+  "color": "#f59e0b",
+  "layers": [
+    {
+      "name": "EXT-SUPPLY",
+      "description": "Upstream infrastructure and software supply-chain preparation outside the protected enterprise.",
+      "techniques": [
+        {
+          "id": "T1195.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1583.001",
+          "status": "unseen"
+        },
+        {
+          "id": "T1588.002",
+          "status": "seen"
+        },
+        {
+          "id": "T1585.002",
+          "status": "unseen"
+        }
+      ]
+    },
+    {
+      "name": "DMZ-ACCESS",
+      "description": "Trusted identity and remote-access boundary used to enter the enterprise environment.",
+      "techniques": [
+        {
+          "id": "T1078",
+          "status": "seen"
+        },
+        {
+          "id": "T1133",
+          "status": "seen"
+        },
+        {
+          "id": "T1090.001",
+          "status": "unseen"
+        },
+        {
+          "id": "T1071.001",
+          "status": "seen"
+        }
+      ]
+    },
+    {
+      "name": "INT-ENDPOINT",
+      "description": "Execution, persistence, host discovery, collection, and service disruption on internal endpoints.",
+      "techniques": [
+        {
+          "id": "T1204.002",
+          "status": "unseen"
+        },
+        {
+          "id": "T1059.003",
+          "status": "seen"
+        },
+        {
+          "id": "T1547.001",
+          "status": "seen"
+        },
+        {
+          "id": "T1055",
+          "status": "unseen"
+        },
+        {
+          "id": "T1082",
+          "status": "seen"
+        },
+        {
+          "id": "T1057",
+          "status": "seen"
+        },
+        {
+          "id": "T1005",
+          "status": "seen"
+        },
+        {
+          "id": "T1489",
+          "status": "unseen"
+        }
+      ]
+    }
+  ]
+}
