@@ -53,7 +53,7 @@
       <li>처음에는 모든 유효 캠페인과 모든 레이어가 선택됩니다.</li>
       <li>캠페인은 파일명순이며 칩에는 nickname을 표시합니다. hover하면 색상 점, 정식 이름, nickname 배지, 귀속 후보, 설명, 레이어 배지와 고유 Techniques 수가 표시됩니다.</li>
       <li>캠페인과 레이어는 복수 선택 및 드래그 정렬할 수 있습니다. Layer의 기본 표시는 <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, 기타 이름 순이고 각 그룹 안에서는 알파벳순입니다. 새로 등장한 Layer도 해당 그룹 위치에 들어가며 사용자가 드래그해 다시 정렬할 수 있습니다. 칩을 hover하면 드래그 핸들이 강조되고 대시보드 정렬은 JSON을 바꾸지 않습니다.</li>
-      <li>여러 캠페인이 공유하는 셀은 색상을 혼합합니다. 최초 로드에서는 모든 캠페인 배지를 펼쳐 표시합니다. 모두 접기를 사용하면 세 개 이상인 셀은 두 배지와 <code>더보기 +N</code>으로 축약되며, 모두 펼치기/모두 접기로 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
+      <li>여러 캠페인이 공유하는 셀은 OKLab 공간에서 색상을 자연스럽게 혼합합니다. 같은 계열의 색상이 겹치면 배경이 더 강해지지만, 캠페인이 많아져도 강도 상한을 넘지 않습니다. 최초 로드에서는 모든 캠페인 배지를 펼쳐 표시합니다. 모두 접기를 사용하면 세 개 이상인 셀은 두 배지와 <code>더보기 +N</code>으로 축약되며, 모두 펼치기/모두 접기로 일괄 변경한 뒤 각 셀을 다시 수동 조정할 수 있습니다.</li>
       <li>캠페인 배지 옆에는 배지와 구분되는 테두리 없는 단일 상태 컨트롤이 있습니다. 한 Layer에만 있는 T-code와 여러 Layer에 있는 T-code 모두 클릭하면 같은 Layer별 팝오버가 열리며 상태와 주석을 보여줍니다. 각 Layer는 개별 저장할 수 있고, 모두 변경 작업은 영향받는 Layer 수를 표시하고 확인 후 저장합니다. 저장 후에도 팝오버가 같은 위치에 열린 상태로 유지되어 연속해서 변경할 수 있습니다. Layer 상태가 다르면 JSON에는 없는 집계 표시인 <code>혼합</code>으로 나타납니다. 셀에는 별도의 주석 표식을 표시하지 않습니다.</li>
       <li>캠페인 배지 도구 옆의 확인됨·미확인 체크박스로 해당 진행 상태의 사용분만 필터링합니다. 둘 다 기본 선택이며, 둘 다 해제하면 캠페인 강조가 사라집니다. ATT&amp;CK 참조 셀은 미사용 항목 표시 설정에 따라 계속 보일 수 있습니다.</li>
       <li>하위 기술은 메인·전술·기술 화면에서 일관된 branch 연결선과 SUB 표식으로 구분합니다. 부모 기술의 하위 기술 개수 버튼은 화살표와 숫자를 한 줄 중앙에 표시합니다. 사용된 하위 기술의 부모는 문맥상 유지하지만 자동 강조하지 않습니다.</li>
@@ -81,7 +81,7 @@
     <details><summary>같은 기술이 여러 레이어에 있어도 되나요?</summary><p>네. 각 경계에서 반복되는 행위를 표현합니다.</p></details>
     <details><summary>왜 부모 기술이 강조되지 않나요?</summary><p>명시한 T-code만 강조합니다. 부모도 강조하려면 부모 ID를 추가하세요.</p></details>
     <details><summary>ATT&amp;CK 데이터는 어떻게 변경하나요?</summary><p><code>data/attack/</code>의 Enterprise, Mobile, ICS JSON을 같은 버전의 공식 STIX 번들로 모두 교체하고 앱을 재시작하세요. Docker 이미지의 파일을 바꾸면 재빌드해야 합니다.</p></details>
-    <details><summary>색상이 섞이는 이유는 무엇인가요?</summary><p>여러 캠페인에 공통인 기술입니다. 셀 배지로 구성 캠페인을 확인하세요.</p></details>
+    <details><summary>색상이 섞이는 이유는 무엇인가요?</summary><p>여러 캠페인에 공통인 기술입니다. 색상은 지각 기반으로 혼합되고 중첩 수에 따라 제한된 범위에서 강해집니다. 셀 배지로 구성 캠페인의 원래 색상을 확인하세요.</p></details>
     <details><summary>회사 내부에서 사용할 수 있나요?</summary><p>영리기업의 내부 분석·평가·PoC를 포함한 사용은 공개 라이선스로 허용되지 않으며 저작권자의 별도 서면 라이선스가 필요합니다.</p></details>
   </article>
 </section>
@@ -133,7 +133,7 @@
       <li>All valid campaigns and layers are selected initially.</li>
       <li>Campaigns are sorted by filename while chips display nicknames. Hover for the color dot, full name, nickname badge, attribution, description, layer badges, and unique technique count.</li>
       <li>Multi-select and drag campaign or layer chips to change dashboard order without modifying JSON. Layers initially appear as <code>EXT-*</code>, <code>DMZ-*</code>, <code>INT-*</code>, then other names, with alphabetical ordering inside each group. Newly available layers enter their default group position and can be reordered manually. Hovering either chip type highlights its drag handle.</li>
-      <li>Shared cells blend campaign colors. All campaign badges are expanded on initial load. Collapse all reduces cells with three or more campaigns to two badges and More +N; Expand all and Collapse all update every overlapping cell while individual cells remain manually adjustable.</li>
+      <li>Shared cells blend campaign colors perceptually in OKLab. Similar colors become stronger as campaigns overlap, while a bounded intensity curve prevents excessive brightness at high counts. All campaign badges are expanded on initial load. Collapse all reduces cells with three or more campaigns to two badges and More +N; Expand all and Collapse all update every overlapping cell while individual cells remain manually adjustable.</li>
       <li>A single borderless status control beside each campaign badge is visually distinct from the badge. Clicking always opens the same layer-aware popover for both single-layer and multi-layer use, showing status and comments for each layer. Individual changes save separately, while bulk actions state the affected layer count and require confirmation. The popover remains open in place after saving so you can make consecutive changes. Differing layer states appear as <code>Mixed</code>, an aggregate display never stored in JSON. Matrix cells do not show a separate note marker.</li>
       <li>Use the Seen and Unseen checkboxes beside the campaign badge tools to filter campaign usage by progress. Both are selected by default; clearing both removes campaign highlights, while ATT&amp;CK reference cells may remain according to the Show unused settings.</li>
       <li>Consistent branch lines across matrix, tactic, and technique views plus SUB labels identify sub-techniques. Parent technique count controls keep their arrow and number centered on one line. Parents of used children remain as context but are not automatically highlighted.</li>
@@ -161,7 +161,7 @@
     <details><summary>Can a technique appear in multiple layers?</summary><p>Yes. This represents behavior repeated across boundaries.</p></details>
     <details><summary>Why is a parent technique not highlighted?</summary><p>Only explicitly listed T-codes are highlighted. Add the parent ID separately.</p></details>
     <details><summary>How do I replace ATT&amp;CK data?</summary><p>Replace the Enterprise, Mobile, and ICS JSON files in <code>data/attack/</code> with matching-version official STIX bundles and restart. Rebuild Docker when changing image-bundled files.</p></details>
-    <details><summary>Why are colors blended?</summary><p>The technique is shared by multiple campaigns. Cell badges identify the contributing campaigns.</p></details>
+    <details><summary>Why are colors blended?</summary><p>The technique is shared by multiple campaigns. Colors are mixed perceptually and strengthen within a bounded range as overlap grows. Cell badges retain the contributing campaigns' original colors.</p></details>
     <details><summary>May my company use this internally?</summary><p>Internal analysis, evaluation, and proofs of concept by a for-profit organization are not permitted by the public license and require a separate written license from the copyright holder.</p></details>
   </article>
 </section>

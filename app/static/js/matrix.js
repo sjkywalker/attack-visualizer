@@ -13,11 +13,53 @@
   })[char]);
   const stripMd = (value = '') => value.replace(/\[(.*?)\]\(.*?\)/g, '$1')
     .replace(/[\r\n]+/g, ' ').replace(/[*_`#]/g, '').trim();
+  const srgbToLinear = value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4;
+  const linearToSrgb = value => value <= .0031308 ? 12.92 * value : 1.055 * value ** (1 / 2.4) - .055;
+  const hexToOklab = color => {
+    const [r, g, b] = [1, 3, 5].map(index => srgbToLinear(parseInt(color.slice(index, index + 2), 16) / 255));
+    const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b);
+    const m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b);
+    const s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+    return [
+      .2104542553 * l + .793617785 * m - .0040720468 * s,
+      1.9779984951 * l - 2.428592205 * m + .4505937099 * s,
+      .0259040371 * l + .7827717662 * m - .808675766 * s,
+    ];
+  };
+  const oklabToLinearRgb = ([lightness, a, b]) => {
+    const l = (lightness + .3963377774 * a + .2158037573 * b) ** 3;
+    const m = (lightness - .1055613458 * a - .0638541728 * b) ** 3;
+    const s = (lightness - .0894841775 * a - 1.291485548 * b) ** 3;
+    return [
+      4.0767416621 * l - 3.3077115913 * m + .2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s,
+      -.0041960863 * l - .7034186147 * m + 1.707614701 * s,
+    ];
+  };
+  const oklabToHex = lab => {
+    const inGamut = rgb => rgb.every(value => value >= 0 && value <= 1);
+    let rgb = oklabToLinearRgb(lab);
+    if (!inGamut(rgb)) {
+      let low = 0;
+      let high = 1;
+      for (let index = 0; index < 18; index += 1) {
+        const factor = (low + high) / 2;
+        const candidate = oklabToLinearRgb([lab[0], lab[1] * factor, lab[2] * factor]);
+        if (inGamut(candidate)) {
+          low = factor;
+          rgb = candidate;
+        } else high = factor;
+      }
+    }
+    return `#${rgb.map(value => Math.round(Math.max(0, Math.min(1, linearToSrgb(value))) * 255)
+      .toString(16).padStart(2, '0')).join('')}`;
+  };
   const mix = colors => {
     if (!colors.length) return '#344a5d';
-    const rgb = colors.map(color => [1, 3, 5].map(index => parseInt(color.slice(index, index + 2), 16)));
-    return `#${[0, 1, 2].map(index => Math.round(rgb.reduce((sum, color) => sum + color[index], 0) / rgb.length).toString(16).padStart(2, '0')).join('')}`;
+    const labs = colors.map(hexToOklab);
+    return oklabToHex([0, 1, 2].map(index => labs.reduce((sum, color) => sum + color[index], 0) / labs.length));
   };
+  const mixStrength = count => count ? .34 + .30 * (1 - Math.exp(-.65 * (count - 1))) : .34;
   const blend = (foreground, background, amount) => {
     const parse = color => [1, 3, 5].map(index => parseInt(color.slice(index, index + 2), 16));
     const fg = parse(foreground);
@@ -321,7 +363,7 @@
     const toggleTitle = ui(`미사용 하위 기술 ${expanded ? '접기' : '펼치기'}`, `${expanded ? 'Collapse' : 'Expand'} unused sub-techniques`);
     const toggle = childCount ? `<button class="subtech-toggle" type="button" data-parent-id="${esc(technique.id)}" aria-expanded="${expanded}" title="${toggleTitle}"><span aria-hidden="true">${expanded ? '▾' : '▸'}</span><span>${childCount}</span></button>` : '';
     const detailDomain = technique.domains?.[0] || 'enterprise';
-    return `<div class="technique-row ${childCount ? 'has-subtechniques' : ''} ${technique.parent_id ? 'is-subtechnique' : ''}"><a class="technique ${technique.parent_id ? 'subtechnique' : ''} ${campaigns.length ? 'highlighted' : ''} ${isAncestorOnly ? 'ancestor-context' : ''} ${query ? (found ? 'search-match' : 'search-dim') : ''}" style="--mix:${mix(campaigns.map(campaign => campaign.assigned_color))}" href="/techniques/${encodeURIComponent(technique.id)}?domain=${encodeURIComponent(detailDomain)}" target="_blank" rel="noopener noreferrer" data-tip='${tooltip}'><span class="tid">${esc(technique.id)}${technique.parent_id ? '<span class="subtech-label">SUB</span>' : ''}</span><span class="tname">${esc(technique.name)}</span>${isAncestorOnly ? `<span class="ancestor-note">${ui('사용된 하위 기술의 상위 항목', 'Parent of a used sub-technique')}</span>` : ''}${campaigns.length ? `<span class="badges">${badges}${extra}</span>` : ''}</a>${toggle}</div>`;
+    return `<div class="technique-row ${childCount ? 'has-subtechniques' : ''} ${technique.parent_id ? 'is-subtechnique' : ''}"><a class="technique ${technique.parent_id ? 'subtechnique' : ''} ${campaigns.length ? 'highlighted' : ''} ${isAncestorOnly ? 'ancestor-context' : ''} ${query ? (found ? 'search-match' : 'search-dim') : ''}" style="--mix:${mix(campaigns.map(campaign => campaign.assigned_color))};--mix-strength:${Math.round(mixStrength(campaigns.length) * 100)}%" href="/techniques/${encodeURIComponent(technique.id)}?domain=${encodeURIComponent(detailDomain)}" target="_blank" rel="noopener noreferrer" data-tip='${tooltip}'><span class="tid">${esc(technique.id)}${technique.parent_id ? '<span class="subtech-label">SUB</span>' : ''}</span><span class="tname">${esc(technique.name)}</span>${isAncestorOnly ? `<span class="ancestor-note">${ui('사용된 하위 기술의 상위 항목', 'Parent of a used sub-technique')}</span>` : ''}${campaigns.length ? `<span class="badges">${badges}${extra}</span>` : ''}</a>${toggle}</div>`;
   }
 
   function parentIds() {
@@ -866,10 +908,11 @@
         const rect = rectOf(technique);
         const style = getComputedStyle(technique);
         const campaignColor = technique.style.getPropertyValue('--mix').trim() || '#344a5d';
+        const campaignStrength = parseFloat(technique.style.getPropertyValue('--mix-strength')) / 100 || .34;
         context.save();
         context.globalAlpha = Number(style.opacity || 1);
         roundedRect(rect, 6 * zoom);
-        context.fillStyle = technique.classList.contains('highlighted') ? blend(campaignColor, '#101c27', .34) : style.backgroundColor;
+        context.fillStyle = technique.classList.contains('highlighted') ? blend(campaignColor, '#101c27', campaignStrength) : style.backgroundColor;
         context.fill();
         context.strokeStyle = technique.classList.contains('search-match') ? '#ffe66d' : style.borderColor;
         context.lineWidth = technique.classList.contains('search-match') ? Math.max(2, 2 * zoom) : Math.max(.5, zoom);

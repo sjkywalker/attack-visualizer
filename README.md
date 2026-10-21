@@ -21,7 +21,7 @@ files are the source of truth, and no database is required.
 - Multi-select campaigns and layers with grouped `EXT`/`DMZ`/`INT` defaults and draggable display ordering
 - Multi-select Enterprise, Mobile, and ICS domains; shared tactics and T-codes are merged in the matrix
 - ATT&CK tactic, technique, and sub-technique hierarchy with unused-item filters
-- Campaign color blending, nickname badges, and expandable overlap details
+- Perceptual campaign color blending with bounded overlap intensity, nickname badges, and expandable overlap details
 - Per-T-code seen/unseen progress tracking, dashboard status filters, and analyst comments
 - T-code and technique-name search, hover summaries, and domain-specific internal detail tabs
 - Automatic initial fit-to-width, manual matrix zoom, and PNG export reflecting the current view
